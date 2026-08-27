@@ -1,0 +1,445 @@
+<% layout("/layouts/boilerplate") %>
+
+<div class="container px-4 px-lg-5 py-5">
+    <div class="row g-4 g-lg-5">
+        
+        <!-- LEFT COLUMN: USER PROFILE & CREDIT CARD -->
+        <div class="col-lg-4">
+            <div class="rw-form-card p-4 text-center sticky-top" style="top: 100px;">
+                
+                <div class="w-20 h-20 rounded-circle mx-auto d-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px; background: var(--rw-accent-light); color: var(--rw-accent); font-size: 2.2rem;">
+                    <i class="bi bi-person"></i>
+                </div>
+
+                <h2 class="font-serif h3 mb-1"><%= user.username %></h2>
+                <p class="text-muted small mb-2"><%= user.email %></p>
+
+                <% if(currentUser && currentUser.role === 'admin') { %>
+                    <div class="mb-3">
+                        <span class="rw-badge rw-badge-gold"><i class="bi bi-shield-lock-fill me-1"></i> Administrator Account</span>
+                    </div>
+                <% } %>
+
+                <!-- Credit Wallet Pill -->
+                <div class="p-3 rounded-3 mb-4 text-start" style="background: linear-gradient(135deg, rgba(225, 169, 60, 0.15) 0%, var(--rw-bg-alt) 100%); border: 1px solid rgba(225, 169, 60, 0.3);">
+                    <div class="d-flex align-items-center justify-content-between mb-1">
+                        <span class="eyebrow mb-0" style="color: var(--rw-credit-gold);">ReWear Balance</span>
+                        <i class="bi bi-wallet2 text-warning fs-5"></i>
+                    </div>
+                    <div class="fs-2 font-serif fw-bold">
+                        <i class="bi bi-coin text-warning me-1"></i> <%= user.points %> <span class="fs-6 font-sans text-muted font-normal">PTS</span>
+                    </div>
+                    <p class="small text-muted mb-0 mt-1" style="font-size: 0.75rem;">Use credits to claim pre-loved garments with zero cash.</p>
+                </div>
+
+                <div class="d-flex flex-column gap-2">
+                    <% if(currentUser && currentUser.role === 'admin') { %>
+                        <a href="/admin/dashboard" class="rw-btn rw-btn-accent rw-btn-sm w-100 fw-bold mb-2">
+                            <i class="bi bi-speedometer2 me-1"></i> Admin Portal
+                        </a>
+                    <% } %>
+                    <a href="/profile/edit" class="rw-btn rw-btn-outline rw-btn-sm w-100">Edit Username</a>
+                    <button class="rw-btn rw-btn-outline rw-btn-sm w-100" data-bs-toggle="modal" data-bs-target="#passwordModal">Security & Password</button>
+                    <a href="/listings/new" class="rw-btn rw-btn-accent rw-btn-sm w-100 mt-2"><i class="bi bi-plus-circle me-1"></i> List New Garment</a>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- RIGHT COLUMN: ACTIVITY & DASHBOARD TABS -->
+        <div class="col-lg-8">
+            <div class="rw-tab-list d-flex gap-2 overflow-x-auto pb-2 mb-4 border-bottom border-secondary border-opacity-25">
+                <button class="rw-tab-item active" id="incoming-tab" data-bs-toggle="tab" data-bs-target="#incoming" type="button">
+                    <i class="bi bi-inbox me-1"></i> Requests for My Items (<%= incomingRequests.length %>)
+                </button>
+                <button class="rw-tab-item" id="my-listings-tab" data-bs-toggle="tab" data-bs-target="#my-listings" type="button">
+                    <i class="bi bi-archive me-1"></i> My Listed Garments (<%= typeof myListings !== 'undefined' ? myListings.length : 0 %>)
+                </button>
+                <button class="rw-tab-item" id="sent-tab" data-bs-toggle="tab" data-bs-target="#sent" type="button">
+                    <i class="bi bi-send me-1"></i> My Sent Requests (<%= sentRequests.length %>)
+                </button>
+                <button class="rw-tab-item" id="active-tab" data-bs-toggle="tab" data-bs-target="#active" type="button">
+                    <i class="bi bi-chat-dots me-1"></i> Active Exchanges (<%= typeof activeExchanges !== 'undefined' ? activeExchanges.length : 0 %>)
+                </button>
+                <button class="rw-tab-item" id="wishlist-tab" data-bs-toggle="tab" data-bs-target="#wishlist" type="button">
+                    <i class="bi bi-heart me-1"></i> Saved Wishlist (<%= user.wishlist.length %>)
+                </button>
+            </div>
+
+            <div class="tab-content">
+                
+                <!-- 1. REQUESTS FOR MY ITEMS (PRODUCT OWNER VIEW) -->
+                <div class="tab-pane fade show active" id="incoming" role="tabpanel">
+                    <div class="rw-form-card p-4">
+                        <% if(incomingRequests.length > 0) { %>
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0" style="background: transparent; color: var(--rw-text-primary);">
+                                    <thead>
+                                        <tr class="text-uppercase text-muted small border-bottom border-secondary border-opacity-25">
+                                            <th>Garment Piece</th>
+                                            <th>Requester</th>
+                                            <th>Credit Value</th>
+                                            <th>Status</th>
+                                            <th class="text-end">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% for(let req of incomingRequests) { %>
+                                            <tr>
+                                                <td>
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <% if (req.listing && req.listing.image?.url) { %>
+                                                            <img src="<%= req.listing.image.url %>" alt="<%= req.listing.productName %>" class="rounded object-fit-cover" style="width: 42px; height: 42px;">
+                                                        <% } %>
+                                                        <div>
+                                                            <% if (req.listing) { %>
+                                                                <a href="/listings/<%= req.listing._id %>" class="fw-medium text-decoration-none text-white d-block">
+                                                                    <%= req.listing.productName %>
+                                                                </a>
+                                                            <% } else { %>
+                                                                <span class="text-muted italic">Listing Unavailable</span>
+                                                            <% } %>
+                                                            <span class="small text-muted"><%= req.createdAt ? req.createdAt.toLocaleDateString() : 'Recent' %></span>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="text-secondary">@<%= req.sender ? req.sender.username : 'User' %></td>
+                                                <td><span class="text-warning font-serif"><i class="bi bi-coin"></i> <%= req.creditValue || (req.listing ? req.listing.price : 0) %> PTS</span></td>
+                                                <td>
+                                                    <% if(req.status === 'PENDING_OWNER' || req.status === 'pending') { %>
+                                                        <span class="badge bg-warning text-dark"><i class="bi bi-clock me-1"></i> Pending Your Approval</span>
+                                                    <% } else if(req.status === 'PENDING_ADMIN') { %>
+                                                        <span class="badge bg-info text-dark"><i class="bi bi-hourglass-split me-1"></i> Waiting for Admin</span>
+                                                    <% } else { %>
+                                                        <span class="badge bg-secondary"><%= req.status %></span>
+                                                    <% } %>
+                                                </td>
+                                                <td class="text-end">
+                                                    <% if(req.status === 'PENDING_OWNER' || req.status === 'pending') { %>
+                                                        <div class="d-inline-flex gap-2">
+                                                            <form action="/requests/<%= req._id %>/accept" method="POST">
+                                                                <button class="btn btn-sm btn-success rounded-pill px-3" title="Accept Request"><i class="bi bi-check-lg me-1"></i>Accept</button>
+                                                            </form>
+                                                            <form action="/requests/<%= req._id %>/reject" method="POST">
+                                                                <button class="btn btn-sm btn-outline-danger rounded-pill px-3" title="Decline Request"><i class="bi bi-x-lg me-1"></i>Decline</button>
+                                                            </form>
+                                                        </div>
+                                                    <% } else { %>
+                                                        <span class="text-muted small">Responded</span>
+                                                    <% } %>
+                                                </td>
+                                            </tr>
+                                        <% } %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <% } else { %>
+                            <div class="text-center py-5">
+                                <i class="bi bi-inbox text-muted fs-1 mb-2 d-block"></i>
+                                <h5 class="font-serif">No Requests Pending Your Review</h5>
+                                <p class="text-muted small">When other users request your listed garments, they will appear here for your approval.</p>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+
+                <!-- 2. MY LISTED GARMENTS SECTION -->
+                <div class="tab-pane fade" id="my-listings" role="tabpanel">
+                    <div class="rw-form-card p-4">
+                        <% if(typeof myListings !== 'undefined' && myListings.length > 0) { %>
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0" style="background: transparent; color: var(--rw-text-primary);">
+                                    <thead>
+                                        <tr class="text-uppercase text-muted small border-bottom border-secondary border-opacity-25">
+                                            <th>Listed Piece</th>
+                                            <th>Brand / Type</th>
+                                            <th>Size</th>
+                                            <th>Valuation</th>
+                                            <th>Status</th>
+                                            <th class="text-end">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% for(let item of myListings) { %>
+                                            <tr>
+                                                <td>
+                                                    <div class="d-flex align-items-center gap-3">
+                                                        <img src="<%= item.image?.url || (item.images && item.images[0]?.url) || '/images/placeholder.jpg' %>" alt="<%= item.productName %>" class="rounded object-fit-cover" style="width: 48px; height: 48px;">
+                                                        <div>
+                                                            <a href="/listings/<%= item._id %>" class="fw-medium text-decoration-none text-white d-block">
+                                                                <%= item.productName %>
+                                                            </a>
+                                                            <span class="small text-muted"><%= item.condition %></span>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="fw-medium"><%= item.brand %></div>
+                                                    <div class="small text-muted"><%= item.itemType %></div>
+                                                </td>
+                                                <td>
+                                                    <div class="small text-muted">AI Value: ₹<%= (item.aiEvaluation?.estimatedValueINR || item.price || 0).toLocaleString() %></div>
+                                                    <div class="fw-bold text-success"><i class="bi bi-coin me-1"></i> <%= item.price || item.aiEvaluation?.suggestedCredits || 0 %> CREDITS</div>
+                                                </td>
+                                                <td>
+                                                    <% if(item.status === 'ADMIN_APPROVED' || item.status === 'PUBLISHED') { %>
+                                                        <span class="badge bg-success text-white"><i class="bi bi-check-circle-fill me-1"></i> Published</span>
+                                                    <% } else if(item.status === 'ADMIN_REJECTED') { %>
+                                                        <span class="badge bg-danger" data-bs-toggle="tooltip" title="<%= item.adminReview?.rejectionReason || 'Rejected by Admin' %>">
+                                                            <i class="bi bi-x-circle-fill me-1"></i> Rejected
+                                                        </span>
+                                                        <% if(item.adminReview?.rejectionReason) { %>
+                                                            <div class="small text-danger mt-1" style="font-size: 0.7rem;"><%= item.adminReview.rejectionReason %></div>
+                                                        <% } %>
+                                                    <% } else if(item.status === 'AI_REVIEW_FAILED') { %>
+                                                        <span class="badge bg-danger"><i class="bi bi-exclamation-triangle me-1"></i> AI Failed</span>
+                                                    <% } else { %>
+                                                        <span class="badge bg-warning text-dark"><i class="bi bi-clock-history me-1"></i> Waiting for Admin</span>
+                                                    <% } %>
+                                                </td>
+                                                <td class="text-end">
+                                                    <div class="d-inline-flex gap-2">
+                                                        <a href="/listings/<%= item._id %>/valuation" class="rw-btn rw-btn-outline rw-btn-sm py-1 px-2" style="font-size: 0.75rem;">
+                                                            <i class="bi bi-cpu me-1"></i> AI Report
+                                                        </a>
+                                                        <% if(item.status === 'ADMIN_REJECTED') { %>
+                                                            <a href="/listings/new" class="rw-btn rw-btn-accent rw-btn-sm py-1 px-2" style="font-size: 0.75rem;">
+                                                                <i class="bi bi-arrow-repeat me-1"></i> Resubmit
+                                                            </a>
+                                                        <% } else { %>
+                                                            <a href="/listings/<%= item._id %>" class="rw-btn rw-btn-outline rw-btn-sm py-1 px-2" style="font-size: 0.75rem;">
+                                                                <i class="bi bi-eye me-1"></i> View
+                                                            </a>
+                                                        <% } %>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        <% } %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <% } else { %>
+                            <div class="text-center py-5">
+                                <i class="bi bi-archive text-muted fs-1 mb-2 d-block"></i>
+                                <h5 class="font-serif">You Haven't Listed Any Garments Yet</h5>
+                                <p class="text-muted small">Give your pre-loved luxury clothes a new home and earn exchange credits.</p>
+                                <a href="/listings/new" class="rw-btn rw-btn-accent rw-btn-sm mt-2"><i class="bi bi-plus-circle me-1"></i> List New Garment</a>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+
+                <!-- 3. MY SENT REQUESTS (REQUESTER VIEW) -->
+                <div class="tab-pane fade" id="sent" role="tabpanel">
+                    <div class="rw-form-card p-4">
+                        <% if(sentRequests.length > 0) { %>
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0" style="background: transparent; color: var(--rw-text-primary);">
+                                    <thead>
+                                        <tr class="text-uppercase text-muted small border-bottom border-secondary border-opacity-25">
+                                            <th>Requested Item</th>
+                                            <th>Owner</th>
+                                            <th>Progress / Status</th>
+                                            <th class="text-end">Action</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <% for(let req of sentRequests) { %>
+                                            <tr>
+                                                <td>
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <% if (req.listing && req.listing.image?.url) { %>
+                                                            <img src="<%= req.listing.image.url %>" alt="<%= req.listing.productName %>" class="rounded object-fit-cover" style="width: 42px; height: 42px;">
+                                                        <% } %>
+                                                        <div>
+                                                            <% if (req.listing) { %>
+                                                                <a href="/listings/<%= req.listing._id %>" class="fw-medium text-decoration-none text-white d-block">
+                                                                    <%= req.listing.productName %>
+                                                                </a>
+                                                            <% } else { %>
+                                                                <span class="text-muted italic">Listing Unavailable</span>
+                                                            <% } %>
+                                                            <span class="small text-muted"><%= req.createdAt ? req.createdAt.toLocaleDateString() : 'Recent' %></span>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="text-secondary">@<%= req.receiver ? req.receiver.username : 'Owner' %></td>
+                                                <td>
+                                                    <% if(req.status === 'PENDING_OWNER') { %>
+                                                        <span class="badge bg-warning text-dark"><i class="bi bi-clock me-1"></i> Waiting for Owner Approval</span>
+                                                    <% } else if(req.status === 'PENDING_ADMIN' || req.status === 'PENDING_ADMIN_REVIEW' || req.status === 'pending') { %>
+                                                        <span class="badge bg-info text-dark"><i class="bi bi-hourglass-split me-1"></i> Owner Accepted — Waiting for Admin</span>
+                                                    <% } else if(req.status === 'ADMIN_APPROVED' || req.status === 'CHAT_ACTIVE' || req.status === 'USER_A_ACCEPTED' || req.status === 'USER_B_ACCEPTED') { %>
+                                                        <span class="badge bg-success"><i class="bi bi-chat-dots-fill me-1"></i> Exchange Approved — Chat Active</span>
+                                                    <% } else if(req.status === 'COMPLETED' || req.status === 'accepted') { %>
+                                                        <span class="badge bg-success"><i class="bi bi-check-circle-fill me-1"></i> Completed</span>
+                                                    <% } else if(req.status === 'OWNER_REJECTED') { %>
+                                                        <span class="badge bg-danger"><i class="bi bi-x-circle-fill me-1"></i> Owner Declined</span>
+                                                    <% } else if(req.status === 'ADMIN_REJECTED') { %>
+                                                        <span class="badge bg-danger"><i class="bi bi-shield-x me-1"></i> Admin Declined</span>
+                                                    <% } else { %>
+                                                        <span class="badge bg-secondary"><%= req.status %></span>
+                                                    <% } %>
+                                                </td>
+                                                <td class="text-end">
+                                                    <% if(req.status === 'ADMIN_APPROVED' || req.status === 'CHAT_ACTIVE' || req.status === 'USER_A_ACCEPTED' || req.status === 'USER_B_ACCEPTED' || req.status === 'COMPLETED') { %>
+                                                        <a href="/exchanges/<%= req._id %>/chat" class="rw-btn rw-btn-accent rw-btn-sm py-1 px-3">
+                                                            <i class="bi bi-chat-left-text-fill me-1"></i> Open Chat
+                                                        </a>
+                                                    <% } else { %>
+                                                        <span class="text-muted small">Locked</span>
+                                                    <% } %>
+                                                </td>
+                                            </tr>
+                                        <% } %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        <% } else { %>
+                            <div class="text-center py-5">
+                                <i class="bi bi-send text-muted fs-1 mb-2 d-block"></i>
+                                <h5 class="font-serif">No Sent Requests</h5>
+                                <p class="text-muted small">Browse the archive and request garments using your available credits.</p>
+                                <a href="/listings" class="rw-btn rw-btn-outline rw-btn-sm mt-2">Explore Collection</a>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+
+                <!-- 4. ACTIVE EXCHANGES & PRIVATE CHATS -->
+                <div class="tab-pane fade" id="active" role="tabpanel">
+                    <div class="rw-form-card p-4">
+                        <% if(typeof activeExchanges !== 'undefined' && activeExchanges.length > 0) { %>
+                            <div class="row g-3">
+                                <% for(let ex of activeExchanges) { %>
+                                    <% 
+                                        const partner = (currentUser && ex.sender && currentUser._id.toString() === ex.sender._id.toString()) ? ex.receiver : ex.sender;
+                                    %>
+                                    <div class="col-md-6">
+                                        <div class="p-3 rounded-3 border border-secondary border-opacity-25 d-flex flex-column justify-content-between h-100" style="background: var(--rw-bg-alt);">
+                                            <div class="d-flex align-items-center mb-3">
+                                                <img src="<%= ex.listing?.image?.url || '/images/placeholder.jpg' %>" alt="<%= ex.listing?.productName %>" class="rounded me-3 object-fit-cover" style="width: 56px; height: 56px;">
+                                                <div>
+                                                    <h6 class="mb-1"><a href="/listings/<%= ex.listing?._id %>" class="text-decoration-none font-serif text-white"><%= ex.listing?.productName || 'Garment Piece' %></a></h6>
+                                                    <div class="small text-muted">
+                                                        Chat with <strong class="text-warning">@<%= partner ? partner.username : 'User' %></strong>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex align-items-center justify-content-between pt-2 border-top border-secondary border-opacity-25">
+                                                <span class="badge bg-success"><i class="bi bi-shield-check me-1"></i> <%= ex.status === 'COMPLETED' ? 'Completed' : 'Approved' %></span>
+                                                <a href="/exchanges/<%= ex._id %>/chat" class="rw-btn rw-btn-accent rw-btn-sm py-1 px-3">
+                                                    <i class="bi bi-chat-left-text-fill me-1"></i> Open Chat
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <% } %>
+                            </div>
+                        <% } else { %>
+                            <div class="text-center py-5">
+                                <i class="bi bi-chat-dots text-muted fs-1 mb-2 d-block"></i>
+                                <h5 class="font-serif">No Active Exchanges Yet</h5>
+                                <p class="text-muted small">Once an exchange request is approved by both the owner and ReWear Admin, your private chat will appear here.</p>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+
+                <!-- 5. WISHLIST -->
+                <div class="tab-pane fade" id="wishlist" role="tabpanel">
+                    <div class="rw-form-card p-4">
+                        <% if(user.wishlist && user.wishlist.length > 0) { %>
+                            <div class="row g-3">
+                                <% for(let item of user.wishlist) { %>
+                                    <% if (item) { %>
+                                        <div class="col-md-6">
+                                            <div class="wishlist-item d-flex align-items-center p-3 rounded-3 border border-secondary border-opacity-25" style="background: var(--rw-bg-alt);">
+                                                <img src="<%= item.image?.url || '/images/placeholder.jpg' %>" alt="<%= item.productName %>" class="rounded me-3 object-fit-cover" style="width: 56px; height: 56px;">
+                                                <div class="flex-grow-1">
+                                                    <h6 class="mb-0"><a href="/listings/<%= item._id %>" class="text-decoration-none font-serif"><%= item.productName %></a></h6>
+                                                    <span class="small text-warning"><i class="bi bi-coin"></i> <%= item.price %> PTS</span>
+                                                </div>
+                                                <form action="/listings/<%= item._id %>/wishlist" method="POST">
+                                                    <button type="submit" class="btn text-danger p-1"><i class="bi bi-trash fs-5"></i></button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    <% } %>
+                                <% } %>
+                            </div>
+                        <% } else { %>
+                            <div class="text-center py-5">
+                                <i class="bi bi-heart text-muted fs-1 mb-2 d-block"></i>
+                                <h5 class="font-serif">Your Saved Wishlist is Empty</h5>
+                                <p class="text-muted small">Click the heart icon on any listing to bookmark pieces here.</p>
+                                <a href="/listings" class="rw-btn rw-btn-accent rw-btn-sm mt-2">Browse Archive</a>
+                            </div>
+                        <% } %>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<!-- CHANGE PASSWORD MODAL -->
+<div class="modal fade" id="passwordModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border border-secondary border-opacity-25" style="background: var(--rw-panel); color: var(--rw-text-primary);">
+            <div class="modal-header border-bottom border-secondary border-opacity-25">
+                <h5 class="modal-title font-serif">Change Account Password</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="/profile/password?_method=PUT" method="POST">
+                <div class="modal-body p-4">
+                    <div class="rw-input-group">
+                        <label class="rw-label">Current Password</label>
+                        <input type="password" name="oldPassword" required placeholder="Enter current password" class="rw-input">
+                    </div>
+                    <div class="rw-input-group mb-0">
+                        <label class="rw-label">New Password</label>
+                        <input type="password" name="newPassword" required placeholder="Enter new password" class="rw-input">
+                    </div>
+                </div>
+                <div class="modal-footer border-top border-secondary border-opacity-25 p-3">
+                    <button type="button" class="rw-btn rw-btn-outline rw-btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="rw-btn rw-btn-accent rw-btn-sm">Update Password</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- DASHBOARD TAB SWITCHING SCRIPT -->
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const tabButtons = document.querySelectorAll(".rw-tab-item");
+        const tabPanes = document.querySelectorAll(".tab-pane");
+
+        tabButtons.forEach(btn => {
+            btn.addEventListener("click", function(e) {
+                e.preventDefault();
+                const targetSelector = this.getAttribute("data-bs-target");
+
+                // Remove active from all buttons
+                tabButtons.forEach(b => b.classList.remove("active"));
+                this.classList.add("active");
+
+                // Hide all panes
+                tabPanes.forEach(pane => {
+                    pane.classList.remove("show", "active");
+                });
+
+                // Show target pane
+                const targetPane = document.querySelector(targetSelector);
+                if (targetPane) {
+                    targetPane.classList.add("show", "active");
+                }
+            });
+        });
+    });
+</script>

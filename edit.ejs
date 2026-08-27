@@ -1,0 +1,187 @@
+<% layout("/layouts/boilerplate") -%>
+
+<div class="container px-4 px-lg-5 py-5">
+    <div class="rw-form-card max-w-3xl mx-auto p-4 p-md-5">
+
+        <div class="border-bottom border-secondary border-opacity-25 pb-4 mb-4">
+            <span class="eyebrow"><i class="bi bi-pencil-square me-1"></i> Seller Studio</span>
+            <h1 class="display-title font-serif mb-2" style="font-size: 2.4rem;">Edit Listing</h1>
+            <p class="text-secondary small mb-0">Update information or manage images for <%= listing.productName %></p>
+        </div>
+
+        <form action="/listings/<%= listing._id %>?_method=PUT" method="POST" enctype="multipart/form-data" id="edit-listing-form">
+
+            <!-- SECTION 1: Basic Information -->
+            <div class="mb-5">
+                <h5 class="font-serif mb-3 d-flex align-items-center gap-2">
+                    <i class="bi bi-info-circle text-warning"></i> Basic Information
+                </h5>
+                
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="rw-input-group">
+                            <label class="rw-label">Product Name <span class="text-danger">*</span></label>
+                            <input type="text" name="listing[productName]" id="productName" value="<%= listing.productName %>" required class="rw-input">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="rw-input-group">
+                            <label class="rw-label">Brand <span class="text-danger">*</span></label>
+                            <input type="text" name="listing[brand]" id="brand" value="<%= listing.brand %>" required class="rw-input">
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="rw-input-group">
+                            <label class="rw-label">Category</label>
+                            <select name="listing[category]" id="category" class="rw-select">
+                                <option value="">Select Category</option>
+                                <% const categories = ["T-Shirt", "Shirt", "Hoodie", "Jacket", "Jeans", "Pants", "Shorts", "Dress", "Skirt", "Sweater", "Shoes", "Cap", "Bag"]; %>
+                                <% categories.forEach(cat => { %>
+                                    <option value="<%= cat %>" <%= listing.category === cat ? 'selected' : '' %>><%= cat %></option>
+                                <% }) %>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="rw-input-group">
+                            <label class="rw-label">Item Type <span class="text-danger">*</span></label>
+                            <input type="text" name="listing[itemType]" id="itemType" value="<%= listing.itemType %>" required class="rw-input">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="rw-input-group">
+                            <label class="rw-label">Gender <span class="text-danger">*</span></label>
+                            <select name="listing[gender]" id="gender" required class="rw-select">
+                                <% const genders = ["Men", "Women", "Unisex", "Kids"]; %>
+                                <% genders.forEach(gen => { %>
+                                    <option value="<%= gen %>" <%= listing.gender === gen ? 'selected' : '' %>><%= gen %></option>
+                                <% }) %>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="rw-input-group">
+                            <label class="rw-label">Description <span class="text-danger">*</span></label>
+                            <textarea name="listing[description]" id="description" required rows="3" class="rw-textarea"><%= listing.description %></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 2: Garment Specs -->
+            <div class="mb-5 pt-4 border-top border-secondary border-opacity-25">
+                <h5 class="font-serif mb-3 d-flex align-items-center gap-2">
+                    <i class="bi bi-tags text-warning"></i> Sizing & Condition
+                </h5>
+
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="rw-input-group">
+                            <label class="rw-label">Size <span class="text-danger">*</span></label>
+                            <input type="text" name="listing[size]" id="size" value="<%= listing.size %>" required class="rw-input">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="rw-input-group">
+                            <label class="rw-label">Color <span class="text-danger">*</span></label>
+                            <input type="text" name="listing[color]" id="color" value="<%= listing.color %>" required class="rw-input">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="rw-input-group">
+                            <label class="rw-label">Material</label>
+                            <input type="text" name="listing[material]" id="material" value="<%= listing.material %>" class="rw-input">
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="rw-input-group">
+                            <label class="rw-label">Condition <span class="text-danger">*</span></label>
+                            <select name="listing[condition]" id="condition" required class="rw-select">
+                                <% const conditions = ["New with Tags", "Like New", "Excellent", "Good", "Fair"]; %>
+                                <% conditions.forEach(cond => { %>
+                                    <option value="<%= cond %>" <%= listing.condition === cond ? 'selected' : '' %>><%= cond %></option>
+                                <% }) %>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="rw-input-group">
+                            <label class="rw-label">Age of Product <span class="text-danger">*</span></label>
+                            <select name="listing[productAge]" id="productAge" required class="rw-select">
+                                <% const ages = ["Less than 6 months", "6–12 months", "1–2 years", "More than 2 years"]; %>
+                                <% ages.forEach(age => { %>
+                                    <option value="<%= age %>" <%= listing.productAge === age ? 'selected' : '' %>><%= age %></option>
+                                <% }) %>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 3: Exchange Terms -->
+            <div class="mb-5 pt-4 border-top border-secondary border-opacity-25">
+                <h5 class="font-serif mb-3 d-flex align-items-center gap-2">
+                    <i class="bi bi-arrow-left-right text-warning"></i> Exchange Preferences
+                </h5>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="rw-input-group">
+                            <label class="rw-label">Direct Exchange Available? <span class="text-danger">*</span></label>
+                            <select name="listing[exchangeAvailable]" id="exchangeAvailable" required class="rw-select">
+                                <option value="true" <%= listing.exchangeAvailable ? 'selected' : '' %>>Yes</option>
+                                <option value="false" <%= !listing.exchangeAvailable ? 'selected' : '' %>>No</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="rw-input-group">
+                            <label class="rw-label">Preferred Exchange Items</label>
+                            <input type="text" name="listing[preferredItems]" id="preferredItems" value="<%= listing.preferredItems %>" class="rw-input">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 4: Manage Images -->
+            <div class="mb-5 pt-4 border-top border-secondary border-opacity-25">
+                <h5 class="font-serif mb-3 d-flex align-items-center gap-2">
+                    <i class="bi bi-images text-warning"></i> Existing & New Images
+                </h5>
+
+                <!-- Existing Images -->
+                <% if(listing.images && listing.images.length > 0) { %>
+                    <label class="rw-label mb-2">Current Images (Check to Delete)</label>
+                    <div class="d-flex flex-wrap gap-3 mb-4">
+                        <% listing.images.forEach((img, index) => { %>
+                            <div class="position-relative rounded-3 overflow-hidden border border-secondary border-opacity-25" style="width: 100px; height: 100px;">
+                                <img src="<%= img.url %>" class="w-100 h-100 object-fit-cover">
+                                <div class="position-absolute bottom-0 start-0 w-100 bg-black bg-opacity-75 p-1 text-center">
+                                    <input type="checkbox" name="deletedImages[]" value="<%= img.filename %>" id="del-<%= index %>">
+                                    <label for="del-<%= index %>" class="text-danger small ms-1" style="font-size: 0.65rem;">Delete</label>
+                                </div>
+                            </div>
+                        <% }) %>
+                    </div>
+                <% } %>
+
+                <!-- Add New Images -->
+                <div class="p-4 text-center rounded-3 border border-dashed border-secondary border-opacity-50 position-relative" style="background: var(--rw-bg-alt);">
+                    <input type="file" name="listing[images]" id="images-input" multiple accept="image/*" class="position-absolute inset-0 w-100 h-100 opacity-0 cursor-pointer" style="z-index: 5;">
+                    <i class="bi bi-cloud-arrow-up fs-2 text-warning mb-1 d-block"></i>
+                    <p class="small font-medium mb-0">Upload additional photos (Max 5 photos total)</p>
+                </div>
+            </div>
+
+            <!-- SUBMIT BUTTON -->
+            <div class="pt-3 border-top border-secondary border-opacity-25 d-flex gap-3">
+                <a href="/listings/<%= listing._id %>" class="rw-btn rw-btn-outline w-50 py-3">Cancel</a>
+                <button type="submit" class="rw-btn rw-btn-accent w-50 py-3">Save Changes</button>
+            </div>
+
+        </form>
+    </div>
+</div>

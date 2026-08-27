@@ -1,0 +1,75 @@
+<nav class="rw-navbar" id="main-nav">
+  <div class="container-fluid px-4 px-lg-5">
+    <div class="d-flex align-items-center justify-content-between">
+
+      <!-- Left: Logo & Core Nav -->
+      <div class="d-flex align-items-center gap-4 gap-lg-5">
+        <a class="brand-logo" href="/">
+          <img src="/images/logo.png" alt="ReWear" onerror="this.style.display='none'">
+          <span>ReWear</span>
+        </a>
+
+        <div class="d-none d-md-flex align-items-center gap-4">
+          <a class="rw-nav-link" href="/listings">Archive</a>
+          <a class="rw-nav-link" href="/listings/new">Sell / Exchange</a>
+          <% if(currentUser && currentUser.role === 'admin') { %>
+            <a class="rw-nav-link text-warning fw-semibold" href="/admin/dashboard"><i class="bi bi-shield-lock-fill me-1"></i>Admin Portal</a>
+          <% } %>
+        </div>
+      </div>
+
+      <!-- Center: Minimal Search -->
+      <div class="d-none d-lg-block mx-4 flex-grow-1" style="max-width: 360px;">
+        <form class="rw-search-box" action="/listings" method="GET">
+          <i class="bi bi-search rw-search-icon"></i>
+          <input class="rw-search-input" type="search" name="q" placeholder="Search brands, styles, items..." value="<%= typeof searchQuery !== 'undefined' ? searchQuery : '' %>">
+        </form>
+      </div>
+
+      <!-- Right: User Actions & Theme -->
+      <div class="d-flex align-items-center gap-3">
+
+        <!-- Theme Toggle Button -->
+        <button id="themeToggleBtn" class="rw-theme-btn" aria-label="Toggle Dark/Light Mode">
+          <i id="themeIcon" class="bi bi-moon-stars-fill"></i>
+        </button>
+
+        <% if(!currentUser){ %>
+          <a href="/login" class="rw-btn rw-btn-outline rw-btn-sm d-none d-sm-inline-flex">Log In</a>
+          <a href="/signup" class="rw-btn rw-btn-primary rw-btn-sm">Get Started</a>
+        <% } else { %>
+          <a href="/dashboard" class="d-flex align-items-center gap-2 rw-btn rw-btn-outline rw-btn-sm text-decoration-none">
+            <i class="bi bi-person-circle"></i>
+            <span class="d-none d-sm-inline"><%= currentUser.username %></span>
+            <span class="rw-badge rw-badge-gold ms-1"><i class="bi bi-coin"></i> <%= currentUser.points || 0 %></span>
+          </a>
+          <a href="/logout" class="rw-btn rw-btn-outline rw-btn-sm text-danger border-0" title="Log Out">
+            <i class="bi bi-box-arrow-right"></i>
+          </a>
+        <% } %>
+
+        <!-- Mobile Toggler -->
+        <button class="btn p-1 d-md-none text-white fs-3 border-0 ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#mobileNavCollapse">
+          <i class="bi bi-list"></i>
+        </button>
+
+      </div>
+    </div>
+
+    <!-- Mobile Drawer Nav -->
+    <div class="collapse d-md-none mt-3 pt-3 border-top border-secondary border-opacity-25" id="mobileNavCollapse">
+      <div class="d-flex flex-column gap-3 pb-2">
+        <form class="rw-search-box mb-2" action="/listings" method="GET">
+          <i class="bi bi-search rw-search-icon"></i>
+          <input class="rw-search-input" type="search" name="q" placeholder="Search archive...">
+        </form>
+        <a class="rw-nav-link" href="/listings">Browse Collection</a>
+        <a class="rw-nav-link" href="/listings/new">Sell or Exchange Item</a>
+        <% if(currentUser){ %>
+          <a class="rw-nav-link" href="/dashboard">My Dashboard</a>
+        <% } %>
+      </div>
+    </div>
+
+  </div>
+</nav>

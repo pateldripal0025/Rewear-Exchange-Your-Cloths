@@ -1,0 +1,38 @@
+<% layout("/layouts/boilerplate") -%>
+
+<div class="rw-auth-wrapper">
+    <div class="rw-auth-card">
+        
+        <!-- Header -->
+        <div class="mb-4">
+            <span class="eyebrow"><i class="bi bi-sparkles me-1"></i> Sustainable Fashion</span>
+            <h1 class="display-title font-serif mb-2" style="font-size: 2.3rem;">Join ReWear</h1>
+            <p class="text-secondary small mb-0">Create an account to receive complimentary starting credits and begin swapping.</p>
+        </div>
+
+        <form action="/signup" method="POST">
+            <div class="rw-input-group text-start mb-3">
+                <label class="rw-label">Username</label>
+                <input type="text" name="username" required placeholder="Choose a username" class="rw-input">
+            </div>
+
+            <div class="rw-input-group text-start mb-3">
+                <label class="rw-label">Email Address (Gmail Only)</label>
+                <input type="email" name="email" required placeholder="you@gmail.com" class="rw-input">
+            </div>
+
+            <div class="rw-input-group text-start mb-4">
+                <label class="rw-label">Password</label>
+                <input type="password" name="password" required placeholder="Create a secure password" class="rw-input">
+            </div>
+
+            <button type="submit" class="rw-btn rw-btn-accent rw-btn-lg w-100 mb-4 py-3">Create Account & Claim Credits</button>
+        </form>
+
+        <p class="text-secondary small mb-0">
+            Already have an account? 
+            <a href="/login" class="fw-bold text-decoration-underline ms-1">Log In</a>
+        </p>
+
+    </div>
+</div>

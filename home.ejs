@@ -1,0 +1,203 @@
+<% layout("/layouts/boilerplate") -%>
+
+<!-- EDITORIAL HERO SECTION -->
+<section class="position-relative overflow-hidden py-5 my-2">
+    <!-- Ambient Glow Effect -->
+    <div class="rw-hero-glow"></div>
+
+    <div class="container px-4 px-lg-5 py-5 position-relative" style="z-index: 2;">
+        <div class="row align-items-center g-5">
+            
+            <!-- Left Hero Copy -->
+            <div class="col-lg-6 hero-copy-wrapper">
+                <span class="eyebrow"><i class="bi bi-sparkles me-1"></i> Sustainable Fashion Revolution</span>
+                <h1 class="display-title mb-4 font-serif">
+                    Redefining Luxury Through <span style="color: var(--rw-accent); font-style: italic;">Circular Exchange</span>.
+                </h1>
+                <p class="text-secondary fs-5 mb-5 fw-light leading-relaxed">
+                    Pass your pre-loved luxury and archival garments to style enthusiasts. Earn credits, discover rare pieces, and join a zero-waste fashion ecosystem.
+                </p>
+
+                <div class="d-flex flex-wrap align-items-center gap-3">
+                    <a href="/listings" class="rw-btn rw-btn-accent rw-btn-lg">
+                        <span>Explore Archive</span>
+                        <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
+                    <a href="/listings/new" class="rw-btn rw-btn-outline rw-btn-lg">
+                        <span>List Your Garments</span>
+                    </a>
+                </div>
+
+                <div class="d-flex align-items-center gap-4 mt-5 pt-4 border-top border-secondary border-opacity-25">
+                    <div>
+                        <div class="fs-3 font-serif fw-bold mb-0">100%</div>
+                        <div class="small text-muted text-uppercase tracking-wider">Cash-Free Swaps</div>
+                    </div>
+                    <div class="border-start border-secondary border-opacity-25 ps-4">
+                        <div class="fs-3 font-serif fw-bold mb-0">AI-Powered</div>
+                        <div class="small text-muted text-uppercase tracking-wider">Credit Valuation</div>
+                    </div>
+                    <div class="border-start border-secondary border-opacity-25 ps-4">
+                        <div class="fs-3 font-serif fw-bold mb-0">Zero</div>
+                        <div class="small text-muted text-uppercase tracking-wider">Textile Waste</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Hero Animated Visual -->
+            <div class="col-lg-6">
+                <div class="position-relative rw-hero-img-container">
+                    
+                    <!-- Floating Pill Badge -->
+                    <div class="rw-floating-badge d-flex align-items-center gap-2">
+                        <i class="bi bi-patch-check-fill text-warning fs-5"></i>
+                        <div>
+                            <div class="fw-semibold text-white small">Archival Certified</div>
+                            <div class="text-white-50" style="font-size: 0.68rem;">Verified Authenticity</div>
+                        </div>
+                    </div>
+
+                    <!-- Main Editorial Image Card with Hover Zoom & Glow -->
+                    <div class="rw-card-media rounded-4 overflow-hidden shadow-lg border border-secondary border-opacity-25 hero-img-card" style="aspect-ratio: 4/5;">
+                        <img id="hero-main-img" src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?q=80&w=1200&auto=format&fit=crop" class="w-100 h-100 object-fit-cover" alt="Editorial Fashion" style="transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);">
+                        <div class="position-absolute bottom-0 start-0 w-100 p-4 text-white" style="background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%);">
+                            <span class="rw-badge rw-badge-gold mb-2"><i class="bi bi-stars me-1"></i> Featured Selection</span>
+                            <h3 class="font-serif text-white mb-1">Archival Leather Jackets & Wool Knitwear</h3>
+                            <p class="small text-white-50 mb-0">Curated by top collectors in the ReWear community</p>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- CURATED FEATURED COLLECTION -->
+<section class="py-5 my-4">
+    <div class="container px-4 px-lg-5">
+        <div class="d-flex flex-column flex-md-row align-items-md-end justify-content-between mb-5">
+            <div>
+                <span class="eyebrow">Fresh Additions</span>
+                <h2 class="section-title font-serif mb-0">Curated From The Archive</h2>
+            </div>
+            <a href="/listings" class="rw-btn rw-btn-outline rw-btn-sm mt-3 mt-md-0">
+                View All Pieces <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+        </div>
+
+        <% if(featuredListings && featuredListings.length > 0) { %>
+            <div class="row g-4">
+                <% for(let listing of featuredListings) { %>
+                    <div class="col-lg-4 col-md-6">
+                        <div class="rw-card">
+                            <div class="rw-card-media">
+                                <img src="<%= listing.image?.url || (listing.images && listing.images[0]?.url) || '/images/placeholder.jpg' %>" class="rw-card-img" alt="<%= listing.productName %>">
+                                <div class="rw-card-overlay"></div>
+                                
+                                <span class="position-absolute top-0 start-0 m-3 rw-badge rw-badge-dark">
+                                    <%= listing.condition || 'Pre-loved' %>
+                                </span>
+
+                                <% if(currentUser && !currentUser._id.equals(listing.owner._id)) { %>
+                                    <form action="/listings/<%= listing._id %>/wishlist" method="POST">
+                                        <button type="submit" class="rw-wishlist-btn" title="Save to Wishlist">
+                                            <i class="bi <%= (currentUser.wishlist && currentUser.wishlist.includes(listing._id)) ? 'bi-heart-fill text-danger' : 'bi-heart' %>"></i>
+                                        </button>
+                                    </form>
+                                <% } %>
+                            </div>
+                            <div class="rw-card-body">
+                                <div class="rw-card-brand"><%= listing.brand %></div>
+                                <h3 class="rw-card-title"><a href="/listings/<%= listing._id %>"><%= listing.productName %></a></h3>
+                                <div class="rw-card-meta">
+                                    <span class="rw-badge rw-badge-sage">Size: <%= listing.size %></span>
+                                    <span class="rw-card-price"><i class="bi bi-coin"></i> <%= listing.price %> PTS</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <% } %>
+            </div>
+        <% } else { %>
+            <div class="text-center py-5 rw-form-card">
+                <i class="bi bi-archive text-muted fs-1 mb-3 d-block"></i>
+                <h4 class="font-serif">The Archive is Freshly Opening</h4>
+                <p class="text-muted">Be the first to list an item and earn credits instantly.</p>
+                <a href="/listings/new" class="rw-btn rw-btn-accent mt-2">List an Item Now</a>
+            </div>
+        <% } %>
+    </div>
+</section>
+
+<!-- HOW REWEAR WORKS -->
+<section class="py-5 my-4 border-top border-bottom border-secondary border-opacity-25" style="background-color: var(--rw-bg-alt);">
+    <div class="container px-4 px-lg-5 py-4">
+        <div class="text-center max-w-2xl mx-auto mb-5">
+            <span class="eyebrow">The Circular Model</span>
+            <h2 class="section-title font-serif">How ReWear Operates</h2>
+            <p class="text-secondary fw-light">A seamless three-step platform designed for luxury pre-loved fashion swap.</p>
+        </div>
+
+        <div class="row g-4 text-center">
+            <div class="col-md-4">
+                <div class="rw-form-card h-100 d-flex flex-column align-items-center">
+                    <div class="w-16 h-16 rounded-circle d-flex align-items-center justify-content-center mb-4" style="width: 64px; height: 64px; background: var(--rw-accent-light); color: var(--rw-accent); font-size: 1.5rem;">
+                        <i class="bi bi-camera"></i>
+                    </div>
+                    <h3 class="font-serif h4 mb-3">1. Upload & Value</h3>
+                    <p class="text-secondary small leading-relaxed mb-0">
+                        Upload photos of garments you no longer wear. Our integrated system evaluates condition, brand, and item type to suggest fair credit valuation.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="rw-form-card h-100 d-flex flex-column align-items-center">
+                    <div class="w-16 h-16 rounded-circle d-flex align-items-center justify-content-center mb-4" style="width: 64px; height: 64px; background: var(--rw-sage-light); color: var(--rw-sage); font-size: 1.5rem;">
+                        <i class="bi bi-arrow-left-right"></i>
+                    </div>
+                    <h3 class="font-serif h4 mb-3">2. Request & Swap</h3>
+                    <p class="text-secondary small leading-relaxed mb-0">
+                        Browse listings from fashion enthusiasts nationwide. Send swap requests or redeem using your earned credit points with zero cash friction.
+                    </p>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="rw-form-card h-100 d-flex flex-column align-items-center">
+                    <div class="w-16 h-16 rounded-circle d-flex align-items-center justify-content-center mb-4" style="width: 64px; height: 64px; background: rgba(229, 169, 60, 0.15); color: var(--rw-credit-gold); font-size: 1.5rem;">
+                        <i class="bi bi-recycle"></i>
+                    </div>
+                    <h3 class="font-serif h4 mb-3">3. Elevate & Repeat</h3>
+                    <p class="text-secondary small leading-relaxed mb-0">
+                        Receive curated pieces direct to your door, refresh your personal wardrobe guilt-free, and keep luxury textiles out of landfills.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SUSTAINABILITY PLEDGE BANNER -->
+<section class="py-5 my-5">
+    <div class="container px-4 px-lg-5">
+        <div class="rw-form-card p-5 overflow-hidden position-relative" style="background: linear-gradient(135deg, var(--rw-sage-dark) 0%, var(--rw-panel) 100%);">
+            <div class="row align-items-center g-4 position-relative" style="z-index: 2;">
+                <div class="col-lg-8">
+                    <span class="rw-badge rw-badge-sage mb-3"><i class="bi bi-globe me-1"></i> Environmental Consciousness</span>
+                    <h2 class="display-title font-serif mb-3" style="font-size: 2.8rem;">
+                        Fast fashion produces 92 million tons of waste per year.
+                    </h2>
+                    <p class="text-secondary fs-5 fw-light mb-0">
+                        By giving clothing a second life through ReWear, you participate directly in conserving precious resources and creating a sustainable fashion future.
+                    </p>
+                </div>
+                <div class="col-lg-4 text-lg-end">
+                    <a href="/signup" class="rw-btn rw-btn-accent rw-btn-lg">Join The Movement</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

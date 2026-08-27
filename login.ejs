@@ -1,0 +1,33 @@
+<% layout("/layouts/boilerplate") -%>
+
+<div class="rw-auth-wrapper">
+    <div class="rw-auth-card">
+        
+        <!-- Header -->
+        <div class="mb-4">
+            <span class="eyebrow"><i class="bi bi-shield-lock me-1"></i> Welcome Back</span>
+            <h1 class="display-title font-serif mb-2" style="font-size: 2.3rem;">Sign In</h1>
+            <p class="text-secondary small mb-0">Access your curated archive, active swaps, and credit balance.</p>
+        </div>
+
+        <form action="/login" method="POST">
+            <div class="rw-input-group text-start mb-3">
+                <label class="rw-label">Username</label>
+                <input type="text" name="username" required placeholder="Enter your username" class="rw-input">
+            </div>
+
+            <div class="rw-input-group text-start mb-4">
+                <label class="rw-label">Password</label>
+                <input type="password" name="password" required placeholder="Enter your password" class="rw-input">
+            </div>
+
+            <button type="submit" class="rw-btn rw-btn-accent rw-btn-lg w-100 mb-4 py-3">Sign In To ReWear</button>
+        </form>
+
+        <p class="text-secondary small mb-0">
+            Don't have an account yet? 
+            <a href="/signup" class="fw-bold text-decoration-underline ms-1">Create Account</a>
+        </p>
+
+    </div>
+</div>

@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exchange Requests — Admin Portal</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/css/style.css">
+    
+    <style>
+        .admin-sidebar {
+            width: 260px;
+            min-height: 100vh;
+            background: #0D0F12;
+            border-right: 1px solid rgba(255, 255, 255, 0.08);
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 100;
+        }
+        .admin-main {
+            margin-left: 260px;
+            min-height: 100vh;
+            background: #0B0C0E;
+        }
+        .admin-nav-link {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            padding: 0.85rem 1.25rem;
+            color: #A0A5B1;
+            font-size: 0.88rem;
+            font-weight: 500;
+            border-radius: 8px;
+            transition: all 0.25s ease;
+            margin-bottom: 0.25rem;
+        }
+        .admin-nav-link:hover, .admin-nav-link.active {
+            color: #D4AF37;
+            background: rgba(212, 175, 55, 0.08);
+        }
+    </style>
+</head>
+<body class="<%= (typeof currTheme !== 'undefined' && currTheme === 'light') ? 'light-mode' : '' %>">
+
+    <!-- Sidebar -->
+    <aside class="admin-sidebar p-3 d-flex flex-column">
+        <div class="d-flex align-items-center gap-2 px-2 py-3 mb-4 border-bottom border-secondary border-opacity-25">
+            <i class="bi bi-shield-lock-fill text-warning fs-3"></i>
+            <div>
+                <h5 class="font-serif mb-0 text-white fw-bold">ReWear Admin</h5>
+                <span class="small text-muted text-uppercase tracking-wider" style="font-size: 0.65rem;">Control Panel</span>
+            </div>
+        </div>
+
+        <nav class="flex-grow-1">
+            <a href="/admin/dashboard" class="admin-nav-link">
+                <i class="bi bi-speedometer2"></i> Dashboard Overview
+            </a>
+            <a href="/admin/requests" class="admin-nav-link active">
+                <i class="bi bi-arrow-left-right"></i> Exchange Requests
+            </a>
+            <a href="/admin/users" class="admin-nav-link">
+                <i class="bi bi-people"></i> Users Directory
+            </a>
+            <a href="/admin/listings" class="admin-nav-link">
+                <i class="bi bi-archive"></i> Archive Listings
+            </a>
+        </nav>
+
+        <div class="pt-3 border-top border-secondary border-opacity-25">
+            <a href="/listings" class="admin-nav-link text-white-50">
+                <i class="bi bi-box-arrow-left"></i> Exit to ReWear
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Body -->
+    <main class="admin-main p-4 p-lg-5">
+        
+        <!-- Header -->
+        <div class="d-flex align-items-center justify-content-between pb-4 mb-4 border-bottom border-secondary border-opacity-25">
+            <div>
+                <span class="eyebrow"><i class="bi bi-ui-checks me-1"></i> Governance & Review</span>
+                <h1 class="font-serif text-white display-6 mb-0">Exchange Requests Queue</h1>
+            </div>
+            <button id="adminThemeToggleBtn" class="rw-theme-btn" aria-label="Toggle Light/Dark Mode" title="Toggle Theme">
+                <i id="adminThemeIcon" class="bi <%= (typeof currTheme !== 'undefined' && currTheme === 'light') ? 'bi-sun-fill' : 'bi-moon-stars-fill' %>"></i>
+            </button>
+        </div>
+
+        <!-- Status Filter Bar -->
+        <div class="d-flex align-items-center gap-2 overflow-x-auto pb-3 mb-4">
+            <a href="/admin/requests" class="rw-btn <%= currentStatus === 'all' ? 'rw-btn-accent' : 'rw-btn-outline' %> rw-btn-sm">All Requests</a>
+            <a href="/admin/requests?status=pending" class="rw-btn <%= currentStatus === 'pending' ? 'rw-btn-accent' : 'rw-btn-outline' %> rw-btn-sm">Pending Review</a>
+            <a href="/admin/requests?status=approved" class="rw-btn <%= currentStatus === 'approved' ? 'rw-btn-accent' : 'rw-btn-outline' %> rw-btn-sm">Approved (Active Chat)</a>
+            <a href="/admin/requests?status=completed" class="rw-btn <%= currentStatus === 'completed' ? 'rw-btn-accent' : 'rw-btn-outline' %> rw-btn-sm">Completed</a>
+            <a href="/admin/requests?status=rejected" class="rw-btn <%= currentStatus === 'rejected' ? 'rw-btn-accent' : 'rw-btn-outline' %> rw-btn-sm">Admin Rejected</a>
+            <a href="/admin/requests?status=cancelled" class="rw-btn <%= currentStatus === 'cancelled' ? 'rw-btn-accent' : 'rw-btn-outline' %> rw-btn-sm">User Cancelled</a>
+        </div>
+
+        <!-- Requests Table -->
+        <div class="rw-form-card p-4">
+            <% if(requests && requests.length > 0) { %>
+                <div class="table-responsive">
+                    <table class="table table-dark table-hover align-middle mb-0" style="background: transparent;">
+                        <thead>
+                            <tr class="text-uppercase text-muted small border-secondary">
+                                <th>Request ID</th>
+                                <th>Item Title</th>
+                                <th>Requester (User A)</th>
+                                <th>Listing Owner (User B)</th>
+                                <th>Credit Value</th>
+                                <th>Requested Date</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% for(let reqItem of requests) { %>
+                                <tr class="border-secondary border-opacity-25">
+                                    <td><code class="text-warning">#<%= reqItem._id.toString().slice(-6) %></code></td>
+                                    <td>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <img src="<%= reqItem.listing?.image?.url || '/images/placeholder.jpg' %>" style="width: 40px; height: 40px; object-fit: cover;" class="rounded" alt="">
+                                            <div>
+                                                <div class="fw-medium text-white"><%= reqItem.listing?.productName || 'Deleted Item' %></div>
+                                                <div class="small text-muted"><%= reqItem.listing?.brand %></div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>
+                                        <div>@<%= reqItem.sender?.username || 'Unknown' %></div>
+                                        <div class="small text-muted"><%= reqItem.sender?.email %></div>
+                                    </td>
+                                    <td>
+                                        <div>@<%= reqItem.receiver?.username || 'Unknown' %></div>
+                                        <div class="small text-muted"><%= reqItem.receiver?.email %></div>
+                                    </td>
+                                    <td>
+                                        <span class="fw-semibold text-warning"><i class="bi bi-coin"></i> <%= reqItem.creditValue || reqItem.listing?.price || 0 %> PTS</span>
+                                    </td>
+                                    <td class="small text-muted">
+                                        <%= new Date(reqItem.createdAt).toLocaleDateString() %>
+                                    </td>
+                                    <td>
+                                        <% if(reqItem.status === 'PENDING_ADMIN' || reqItem.status === 'PENDING_ADMIN_REVIEW' || reqItem.status === 'pending') { %>
+                                            <span class="badge bg-warning text-dark"><i class="bi bi-hourglass-split me-1"></i> Pending Admin Review</span>
+                                        <% } else if(reqItem.status === 'PENDING_OWNER') { %>
+                                            <span class="badge bg-secondary"><i class="bi bi-clock me-1"></i> Pending Owner</span>
+                                        <% } else if(reqItem.status === 'ADMIN_APPROVED' || reqItem.status === 'CHAT_ACTIVE') { %>
+                                            <span class="badge bg-info text-dark"><i class="bi bi-chat-dots me-1"></i> Approved (Chat Active)</span>
+                                        <% } else if(reqItem.status === 'USER_A_ACCEPTED' || reqItem.status === 'USER_B_ACCEPTED') { %>
+                                            <span class="badge bg-primary"><i class="bi bi-person-check me-1"></i> User Accepted</span>
+                                        <% } else if(reqItem.status === 'COMPLETED' || reqItem.status === 'accepted') { %>
+                                            <span class="badge bg-success"><i class="bi bi-check-circle-fill me-1"></i> Completed</span>
+                                        <% } else if(reqItem.status === 'OWNER_REJECTED') { %>
+                                            <span class="badge bg-danger"><i class="bi bi-x-circle-fill me-1"></i> Owner Rejected</span>
+                                        <% } else if(reqItem.status === 'ADMIN_REJECTED' || reqItem.status === 'rejected') { %>
+                                            <span class="badge bg-danger"><i class="bi bi-x-circle-fill me-1"></i> Admin Rejected</span>
+                                        <% } else { %>
+                                            <span class="badge bg-secondary"><i class="bi bi-slash-circle me-1"></i> <%= reqItem.status %></span>
+                                        <% } %>
+                                    </td>
+                                    <td class="text-end">
+                                        <div class="d-inline-flex gap-2 align-items-center">
+                                            <% if(reqItem.status === 'PENDING_ADMIN' || reqItem.status === 'PENDING_ADMIN_REVIEW' || reqItem.status === 'pending') { %>
+                                                <form action="/admin/requests/<%= reqItem._id %>/review" method="POST" class="d-inline">
+                                                    <input type="hidden" name="action" value="APPROVE">
+                                                    <input type="hidden" name="adminNotes" value="Approved from Admin Queue">
+                                                    <button type="submit" class="btn btn-sm btn-success rounded-pill px-3" title="Approve Request & Open Chat">
+                                                        <i class="bi bi-check-lg me-1"></i> Accept
+                                                    </button>
+                                                </form>
+                                                <form action="/admin/requests/<%= reqItem._id %>/review" method="POST" class="d-inline">
+                                                    <input type="hidden" name="action" value="REJECT">
+                                                    <input type="hidden" name="adminNotes" value="Rejected from Admin Queue">
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill px-3" title="Reject Request">
+                                                        <i class="bi bi-x-lg me-1"></i> Reject
+                                                    </button>
+                                                </form>
+                                            <% } %>
+                                            <a href="/admin/requests/<%= reqItem._id %>" class="rw-btn rw-btn-outline rw-btn-sm py-1 px-3">
+                                                Inspect
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
+            <% } else { %>
+                <div class="text-center py-5">
+                    <i class="bi bi-inbox text-muted fs-1 mb-3 d-block"></i>
+                    <h4 class="font-serif text-white">No Exchange Requests Found</h4>
+                    <p class="text-muted">There are no exchange requests matching the selected status filter.</p>
+                </div>
+            <% } %>
+        </div>
+
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const themeBtn = document.getElementById('adminThemeToggleBtn');
+        const themeIcon = document.getElementById('adminThemeIcon');
+        if (themeBtn) {
+            themeBtn.addEventListener('click', () => {
+                const isLight = document.body.classList.toggle('light-mode');
+                const theme = isLight ? 'light' : 'dark';
+                if (themeIcon) {
+                    themeIcon.className = isLight ? 'bi bi-sun-fill' : 'bi bi-moon-stars-fill';
+                }
+                const d = new Date();
+                d.setTime(d.getTime() + (365*24*60*60*1000));
+                document.cookie = `theme=${theme};expires=${d.toUTCString()};path=/`;
+            });
+        }
+    </script>
+</body>
+</html>

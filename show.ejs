@@ -1,0 +1,325 @@
+<% layout("/layouts/boilerplate") -%>
+
+<div class="container-fluid px-4 px-lg-5 py-4" id="ai-chat-container" 
+     data-listing-id="<%= listing._id %>"
+     data-product-name="<%= listing.productName %>"
+     data-brand="<%= listing.brand %>"
+     data-price="<%= listing.price %>"
+     data-size="<%= listing.size %>"
+     data-description="<%= listing.description %>"
+     data-item-type="<%= listing.itemType %>">
+    
+    <div class="row g-4 g-xl-5">
+
+        <!-- LEFT: GALLERY & IMAGES -->
+        <div class="col-lg-6 col-xl-5">
+            <div class="sticky-top" style="top: 100px;">
+                <div class="rw-card-media rounded-4 overflow-hidden shadow-lg border border-secondary border-opacity-25 mb-3" style="aspect-ratio: 3/4;">
+                    <img id="main-product-image" class="w-100 h-100 object-fit-cover" src="<%= listing.image?.url || (listing.images && listing.images[0]?.url) || '/images/placeholder.jpg' %>" alt="<%= listing.productName %>">
+                </div>
+
+                <% if (listing.images && listing.images.length > 0) { %>
+                    <div class="d-flex gap-2 overflow-x-auto pb-2 scrollbar-none">
+                        <% listing.images.forEach((img, idx) => { %>
+                            <div class="rounded-3 overflow-hidden border cursor-pointer border-secondary border-opacity-25" style="width: 70px; height: 70px; flex-shrink: 0;" onclick="changeMainImage('<%= img.url %>', this)">
+                                <img src="<%= img.url %>" class="w-100 h-100 object-fit-cover thumbnail-img <%= listing.image?.url === img.url ? 'opacity-100 border-warning' : 'opacity-50' %>" alt="Thumbnail <%= idx + 1 %>">
+                            </div>
+                        <% }) %>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+
+        <!-- CENTER: PRODUCT SPECIFICATIONS & ACTIONS -->
+        <div class="col-lg-6 col-xl-4 d-flex flex-column">
+            <div>
+                <div class="d-flex align-items-center gap-2 mb-2">
+                    <span class="rw-badge rw-badge-gold"><%= listing.brand %></span>
+                    <span class="rw-badge rw-badge-dark"><%= listing.condition %></span>
+                </div>
+
+                <h1 class="display-title font-serif mb-3" style="font-size: 2.5rem;"><%= listing.productName %></h1>
+
+                <div class="d-flex align-items-center gap-3 py-3 border-top border-bottom border-secondary border-opacity-25 mb-4">
+                    <div class="fs-2 font-serif fw-bold d-flex align-items-center gap-2">
+                        <i class="bi bi-coin text-warning"></i>
+                        <span><%= listing.price %> PTS</span>
+                    </div>
+                    <span class="text-muted small">AI Credit Valuation</span>
+                </div>
+
+                <!-- Specs List -->
+                <div class="rw-form-card p-4 mb-4">
+                    <h5 class="font-serif mb-3">Garment Details</h5>
+                    <div class="d-flex flex-column gap-2 small">
+                        <div class="d-flex justify-content-between py-2 border-bottom border-secondary border-opacity-10">
+                            <span class="text-muted">Item Type</span>
+                            <span class="fw-medium"><%= listing.itemType %></span>
+                        </div>
+                        <div class="d-flex justify-content-between py-2 border-bottom border-secondary border-opacity-10">
+                            <span class="text-muted">Size</span>
+                            <span class="fw-medium"><%= listing.size %></span>
+                        </div>
+                        <div class="d-flex justify-content-between py-2 border-bottom border-secondary border-opacity-10">
+                            <span class="text-muted">Gender</span>
+                            <span class="fw-medium"><%= listing.gender || 'Unisex' %></span>
+                        </div>
+                        <% if (listing.color) { %>
+                            <div class="d-flex justify-content-between py-2 border-bottom border-secondary border-opacity-10">
+                                <span class="text-muted">Color</span>
+                                <span class="fw-medium"><%= listing.color %></span>
+                            </div>
+                        <% } %>
+                        <% if (listing.material) { %>
+                            <div class="d-flex justify-content-between py-2 border-bottom border-secondary border-opacity-10">
+                                <span class="text-muted">Material</span>
+                                <span class="fw-medium"><%= listing.material %></span>
+                            </div>
+                        <% } %>
+                        <% if (listing.productAge) { %>
+                            <div class="d-flex justify-content-between py-2 border-bottom border-secondary border-opacity-10">
+                                <span class="text-muted">Product Age</span>
+                                <span class="fw-medium"><%= listing.productAge %></span>
+                            </div>
+                        <% } %>
+                        <div class="d-flex justify-content-between py-2">
+                            <span class="text-muted">Exchange Available</span>
+                            <span class="rw-badge <%= listing.exchangeAvailable ? 'rw-badge-sage' : 'rw-badge-dark' %>"><%= listing.exchangeAvailable ? 'Yes' : 'No' %></span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Description & Notes -->
+                <div class="mb-4">
+                    <h5 class="font-serif mb-2">Description</h5>
+                    <p class="text-secondary fw-light leading-relaxed mb-3"><%= listing.description %></p>
+                    
+                    <% if (listing.defects) { %>
+                        <div class="p-3 rounded-3 mb-2" style="background: rgba(229, 83, 83, 0.1); border: 1px solid rgba(229, 83, 83, 0.2);">
+                            <span class="text-danger small fw-semibold"><i class="bi bi-exclamation-triangle me-1"></i> Seller Defects Note:</span>
+                            <p class="text-danger small mb-0 mt-1"><%= listing.defects %></p>
+                        </div>
+                    <% } %>
+
+                    <% if (listing.additionalNotes) { %>
+                        <p class="small text-muted mb-0"><i class="bi bi-info-circle me-1"></i> <strong>Note:</strong> <%= listing.additionalNotes %></p>
+                    <% } %>
+                </div>
+
+                <!-- Seller Info -->
+                <div class="d-flex align-items-center gap-3 p-3 rounded-3 border border-secondary border-opacity-25 mb-4" style="background: var(--rw-bg-alt);">
+                    <div class="w-10 h-10 rounded-circle bg-secondary bg-opacity-25 d-flex align-items-center justify-content-center" style="width: 42px; height: 42px;">
+                        <i class="bi bi-person-circle fs-4"></i>
+                    </div>
+                    <div>
+                        <div class="small text-muted">Listed by</div>
+                        <div class="fw-semibold"><%= listing.owner ? listing.owner.username : 'Community Member' %></div>
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="d-flex gap-3 mb-4">
+                    <% if(currentUser && !currentUser._id.equals(listing.owner._id)) { %>
+                        <form action="/listings/<%= listing._id %>/request" method="POST" class="flex-grow-1">
+                            <button class="rw-btn rw-btn-accent w-100 py-3">
+                                <i class="bi bi-send me-2"></i> Request Exchange
+                            </button>
+                        </form>
+
+                        <form action="/listings/<%= listing._id %>/wishlist" method="POST">
+                            <button class="rw-btn rw-btn-outline p-3 rounded-circle" title="Wishlist">
+                                <i class="bi <%= (currentUser.wishlist && currentUser.wishlist.includes(listing._id)) ? 'bi-heart-fill text-danger' : 'bi-heart' %> fs-5"></i>
+                            </button>
+                        </form>
+                    <% } else if(!currentUser) { %>
+                        <a href="/login" class="rw-btn rw-btn-primary w-100 py-3">Log In To Exchange</a>
+                    <% } %>
+
+                    <% if(currentUser && currentUser._id.equals(listing.owner._id)) { %>
+                        <a href="/listings/<%= listing._id %>/edit" class="rw-btn rw-btn-outline flex-grow-1 py-3">Edit Item</a>
+                        <form action="/listings/<%= listing._id %>?_method=DELETE" method="POST" class="flex-grow-1">
+                            <button class="rw-btn rw-btn-danger w-100 py-3">Delete</button>
+                        </form>
+                    <% } %>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- RIGHT: AI PRODUCT ASSISTANT -->
+        <div class="col-lg-12 col-xl-3">
+            <div class="rw-form-card p-0 overflow-hidden sticky-top d-flex flex-column" style="top: 100px; height: 620px;">
+                
+                <!-- Chat Header -->
+                <div class="p-3 border-bottom border-secondary border-opacity-25 d-flex align-items-center gap-3" style="background: var(--rw-bg-alt);">
+                    <div class="w-10 h-10 rounded-circle d-flex align-items-center justify-content-center text-warning" style="width: 38px; height: 38px; background: var(--rw-accent-light);">
+                        <i class="bi bi-robot fs-5"></i>
+                    </div>
+                    <div>
+                        <h6 class="font-sans fw-semibold mb-0">AI Fashion Concierge</h6>
+                        <div class="d-flex align-items-center gap-1">
+                            <span class="rounded-circle bg-success d-inline-block" style="width: 6px; height: 6px;"></span>
+                            <span class="small text-muted" style="font-size: 0.72rem;">Ask anything about fit, fabric, style</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chat Message History -->
+                <div id="chat-messages" class="flex-grow-1 p-3 overflow-y-auto d-flex flex-column gap-3" style="font-size: 0.85rem;">
+                    <!-- Injected via JS -->
+                </div>
+
+                <!-- Typing indicator -->
+                <div id="typing-indicator" class="d-none p-3 border-top border-secondary border-opacity-10">
+                    <div class="d-flex gap-2 align-items-center text-muted small">
+                        <i class="bi bi-three-dots"></i>
+                        <span>AI Assistant is typing...</span>
+                    </div>
+                </div>
+
+                <!-- Suggested Questions -->
+                <div class="p-2 border-top border-secondary border-opacity-25 bg-black bg-opacity-20">
+                    <div class="d-flex flex-wrap gap-1">
+                        <button class="btn btn-sm text-secondary border border-secondary border-opacity-25 rounded-pill px-2 py-1" style="font-size: 0.7rem;" onclick="askSuggested('Is this true to size?')">True to size?</button>
+                        <button class="btn btn-sm text-secondary border border-secondary border-opacity-25 rounded-pill px-2 py-1" style="font-size: 0.7rem;" onclick="askSuggested('What is the condition?')">Condition details?</button>
+                        <button class="btn btn-sm text-secondary border border-secondary border-opacity-25 rounded-pill px-2 py-1" style="font-size: 0.7rem;" onclick="askSuggested('How to style this item?')">Style advice?</button>
+                    </div>
+                </div>
+
+                <!-- Chat Form Input -->
+                <form id="chat-form" class="p-3 border-top border-secondary border-opacity-25 d-flex gap-2" onsubmit="handleChatSubmit(event)">
+                    <input type="text" id="chat-input" placeholder="Type a question..." class="rw-input py-2" style="font-size: 0.82rem;">
+                    <button type="submit" class="rw-btn rw-btn-accent p-2 px-3">
+                        <i class="bi bi-send-fill"></i>
+                    </button>
+                </form>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- SIMILAR ITEMS -->
+    <% if(similarListings && similarListings.length > 0) { %>
+        <div class="mt-5 pt-5 border-top border-secondary border-opacity-25">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <h3 class="font-serif">Similar Archive Pieces</h3>
+                <a href="/listings?q=<%= listing.itemType %>" class="rw-btn rw-btn-outline rw-btn-sm">View Category</a>
+            </div>
+
+            <div class="row g-4">
+                <% for(let item of similarListings){ %>
+                    <div class="col-lg-3 col-md-4 col-6">
+                        <div class="rw-card">
+                            <div class="rw-card-media">
+                                <img src="<%= item.image?.url || '/images/placeholder.jpg' %>" class="rw-card-img" alt="<%= item.productName %>">
+                            </div>
+                            <div class="rw-card-body">
+                                <div class="rw-card-brand"><%= item.brand %></div>
+                                <h4 class="rw-card-title"><a href="/listings/<%= item._id %>"><%= item.productName %></a></h4>
+                                <div class="rw-card-meta">
+                                    <span class="rw-card-price"><i class="bi bi-coin"></i> <%= item.price %> PTS</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    <% } %>
+
+</div>
+
+<!-- AI CHATBOT INTEGRATION SCRIPT -->
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const chatMessages = document.getElementById("chat-messages");
+        const chatInput = document.getElementById("chat-input");
+        const typingIndicator = document.getElementById("typing-indicator");
+        const container = document.getElementById("ai-chat-container");
+
+        function appendMessage(sender, text) {
+            const msgDiv = document.createElement("div");
+            if (sender === "ai") {
+                msgDiv.className = "d-flex gap-2";
+                msgDiv.innerHTML = `
+                    <div class="p-2.5 rounded-3 border border-secondary border-opacity-25" style="max-width: 88%; background: var(--rw-bg-alt); color: var(--rw-text-primary);">
+                        ${text}
+                    </div>
+                `;
+            } else {
+                msgDiv.className = "d-flex justify-content-end";
+                msgDiv.innerHTML = `
+                    <div class="p-2.5 rounded-3 bg-warning text-dark fw-medium" style="max-width: 88%;">
+                        ${text}
+                    </div>
+                `;
+            }
+            chatMessages.appendChild(msgDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        function showTyping(show) {
+            if (show) {
+                typingIndicator.classList.remove("d-none");
+            } else {
+                typingIndicator.classList.add("d-none");
+            }
+        }
+
+        // Initial welcome message
+        appendMessage("ai", `Hello! I am your AI Product Assistant for <strong>${container.dataset.productName}</strong>. Ask me any question about sizing, styling, or material.`);
+
+        async function fetchAIResponse(userMessage) {
+            try {
+                const response = await fetch("/api/chat/listing", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        listingId: container.dataset.listingId,
+                        userMessage: userMessage
+                    })
+                });
+
+                if (!response.ok) throw new Error("API failed");
+                const data = await response.json();
+                return data.response;
+            } catch (err) {
+                console.error("AI Error:", err);
+                return "I apologize, I am temporarily unavailable. Please refer to the garment specs above.";
+            }
+        }
+
+        window.askSuggested = async function(q) {
+            appendMessage("user", q);
+            showTyping(true);
+            const reply = await fetchAIResponse(q);
+            showTyping(false);
+            appendMessage("ai", reply);
+        };
+
+        window.handleChatSubmit = async function(e) {
+            e.preventDefault();
+            const text = chatInput.value.trim();
+            if (!text) return;
+            
+            chatInput.value = "";
+            appendMessage("user", text);
+            showTyping(true);
+
+            const reply = await fetchAIResponse(text);
+            showTyping(false);
+            appendMessage("ai", reply);
+        };
+    });
+
+    function changeMainImage(url, element) {
+        document.getElementById('main-product-image').src = url;
+        document.querySelectorAll('.thumbnail-img').forEach(el => {
+            el.classList.remove('opacity-100', 'border-warning');
+            el.classList.add('opacity-50');
+        });
+        element.classList.remove('opacity-50');
+        element.classList.add('opacity-100', 'border-warning');
+    }
+</script>

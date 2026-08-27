@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Review Garment Listing #<%= listing._id.toString().slice(-6) %> | ReWear Admin</title>
+  <link href="https://cdn.jsdelivr.net/css?family=Inter:300,400,500,600,700&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css" rel="stylesheet">
+  <style>
+    :root {
+      --admin-bg: #0B0F17;
+      --admin-card: #151C28;
+      --admin-border: #232D3F;
+      --admin-accent: #E1A93C;
+      --admin-text: #E2E8F0;
+      --admin-muted: #94A3B8;
+    }
+    body { background-color: var(--admin-bg); color: var(--admin-text); font-family: 'Inter', sans-serif; }
+    .admin-card { background: var(--admin-card); border: 1px solid var(--admin-border); border-radius: 12px; }
+  </style>
+</head>
+<body class="py-4 px-3 px-md-5">
+
+  <div class="d-flex align-items-center justify-content-between mb-4 border-bottom pb-3 border-secondary border-opacity-25">
+    <div>
+      <a href="/admin/listings/review" class="btn btn-sm btn-outline-secondary mb-2"><i class="bi bi-arrow-left me-1"></i> Back to Queue</a>
+      <h2 class="h3 fw-bold mb-0 text-warning d-flex align-items-center gap-2">
+        <i class="bi bi-shield-lock"></i> Listing Admin Review
+      </h2>
+    </div>
+    <div>
+      <span class="badge bg-warning text-dark px-3 py-2 text-uppercase fs-6">
+        Status: <%= listing.status %>
+      </span>
+    </div>
+  </div>
+
+  <div class="row g-4">
+    <!-- LEFT COLUMN: Image Gallery (Front, Back, Label) -->
+    <div class="col-lg-6">
+      <div class="admin-card p-4">
+        <h5 class="fw-bold mb-3 text-warning border-bottom pb-2 border-secondary border-opacity-25">
+          <i class="bi bi-camera me-1"></i> Compulsory Verification Images
+        </h5>
+
+        <div class="row g-3">
+          <!-- Front Image -->
+          <div class="col-6">
+            <div class="rounded-3 overflow-hidden border border-secondary position-relative" style="height: 200px;">
+              <img src="<%= listing.frontImage?.url || listing.image?.url %>" class="w-100 h-100 object-fit-cover">
+              <span class="position-absolute bottom-0 start-0 w-100 bg-dark bg-opacity-85 text-warning text-center py-1 fw-bold small">1. FRONT IMAGE</span>
+            </div>
+          </div>
+
+          <!-- Back Image -->
+          <div class="col-6">
+            <div class="rounded-3 overflow-hidden border border-secondary position-relative" style="height: 200px;">
+              <img src="<%= listing.backImage?.url || listing.image?.url %>" class="w-100 h-100 object-fit-cover">
+              <span class="position-absolute bottom-0 start-0 w-100 bg-dark bg-opacity-85 text-warning text-center py-1 fw-bold small">2. BACK IMAGE</span>
+            </div>
+          </div>
+
+          <!-- Label Image -->
+          <div class="col-12">
+            <div class="rounded-3 overflow-hidden border border-secondary position-relative" style="height: 180px;">
+              <img src="<%= listing.labelImage?.url || listing.image?.url %>" class="w-100 h-100 object-fit-cover">
+              <span class="position-absolute bottom-0 start-0 w-100 bg-dark bg-opacity-85 text-warning text-center py-1 fw-bold small">3. BRAND + SIZE LABEL IMAGE</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4 p-3 rounded bg-dark border border-secondary border-opacity-25">
+          <h6 class="text-muted small text-uppercase mb-2">Seller Description</h6>
+          <p class="small mb-0 text-light"><%= listing.description %></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN: Comparison & Admin Authorization -->
+    <div class="col-lg-6">
+      <div class="admin-card p-4">
+        <h5 class="fw-bold mb-3 text-warning border-bottom pb-2 border-secondary border-opacity-25">
+          <i class="bi bi-cpu me-1"></i> User Info vs AI Vision Inspection
+        </h5>
+
+        <!-- Comparison Table -->
+        <table class="table table-dark table-bordered align-middle small mb-4">
+          <thead>
+            <tr class="text-uppercase text-muted">
+              <th>Attribute</th>
+              <th>User Declared</th>
+              <th>AI Detected</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="fw-bold text-muted">Brand</td>
+              <td class="text-light"><%= listing.brand %></td>
+              <td class="fw-bold <%= (listing.aiEvaluation?.detectedBrand && listing.aiEvaluation?.detectedBrand.toLowerCase() !== listing.brand.toLowerCase()) ? 'text-warning' : 'text-success' %>">
+                <%= listing.aiEvaluation?.detectedBrand || listing.brand %>
+              </td>
+            </tr>
+            <tr>
+              <td class="fw-bold text-muted">Size</td>
+              <td class="text-light"><%= listing.size %></td>
+              <td class="fw-bold <%= (listing.aiEvaluation?.detectedSize && listing.aiEvaluation?.detectedSize.toUpperCase() !== listing.size.toUpperCase()) ? 'text-warning' : 'text-success' %>">
+                <%= listing.aiEvaluation?.detectedSize || listing.size %>
+              </td>
+            </tr>
+            <tr>
+              <td class="fw-bold text-muted">Condition</td>
+              <td class="text-light"><%= listing.condition %></td>
+              <td class="fw-bold text-light"><%= listing.aiEvaluation?.detectedCondition || listing.condition %></td>
+            </tr>
+            <tr>
+              <td class="fw-bold text-muted">Material</td>
+              <td class="text-light"><%= listing.material || 'N/A' %></td>
+              <td class="fw-bold text-light"><%= listing.aiEvaluation?.detectedMaterial || 'Cotton Blend' %></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Mismatch Warnings -->
+        <% if(listing.aiEvaluation?.informationMismatch || (listing.aiEvaluation?.detectedIssues && listing.aiEvaluation.detectedIssues.length > 0)) { %>
+          <div class="alert alert-warning p-3 rounded-3 mb-4 small">
+            <h6 class="fw-bold mb-1"><i class="bi bi-exclamation-triangle-fill me-1"></i> AI Warnings & Mismatches Detected</h6>
+            <ul class="mb-0 ps-3">
+              <% for(let issue of listing.aiEvaluation?.detectedIssues || []) { %>
+                <li><%= issue %></li>
+              <% } %>
+            </ul>
+          </div>
+        <% } %>
+
+        <!-- AI Valuation Card -->
+        <div class="p-3 rounded bg-dark border border-warning border-opacity-25 mb-4">
+          <div class="d-flex align-items-center justify-content-between mb-2">
+            <span class="small text-muted font-monospace">AI SUGGESTED VALUE</span>
+            <span class="badge bg-warning text-dark">₹<%= (listing.aiEvaluation?.estimatedValueINR || listing.price || 0).toLocaleString() %></span>
+          </div>
+          <div class="fs-4 fw-bold text-success mb-2"><%= (listing.aiEvaluation?.suggestedCredits || listing.price || 0).toLocaleString() %> Suggested Credits</div>
+          <p class="small text-muted mb-0 fst-italic">"<%= listing.aiEvaluation?.valuationReasoning || 'Valuation derived from brand positioning and condition.' %>"</p>
+        </div>
+
+        <!-- ADMIN CREDIT EDITING & APPROVAL FORM -->
+        <form action="/admin/listings/review/<%= listing._id %>/approve" method="POST" class="mb-4">
+          <h6 class="fw-bold text-warning mb-2"><i class="bi bi-pencil-square me-1"></i> Admin Credit Decision (Final Authority)</h6>
+          <div class="row g-2 align-items-center mb-3">
+            <div class="col-6">
+              <label class="small text-muted">Final Value (INR ₹)</label>
+              <input type="number" name="finalValueINR" id="finalValueINR" class="form-bg-dark form-control border-secondary text-light fw-bold" value="<%= listing.adminReview?.finalValueINR || listing.aiEvaluation?.estimatedValueINR || listing.price || 1000 %>" required>
+            </div>
+            <div class="col-6">
+              <label class="small text-muted">Final ReWear Credits</label>
+              <input type="number" name="finalCredits" id="finalCredits" class="form-bg-dark form-control border-warning text-warning fw-bold fs-5" value="<%= listing.adminReview?.finalCredits || listing.aiEvaluation?.suggestedCredits || listing.price || 1000 %>" required>
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-success btn-lg w-100 fw-bold py-2 mb-2">
+            <i class="bi bi-check-circle-fill me-1"></i> APPROVE & PUBLISH TO MAIN LISTINGS
+          </button>
+        </form>
+
+        <!-- ADMIN REJECT FORM -->
+        <button type="button" class="btn btn-outline-danger w-100 fw-bold" data-bs-toggle="collapse" data-bs-target="#rejectCollapse">
+          <i class="bi bi-x-circle me-1"></i> REJECT LISTING
+        </button>
+
+        <div class="collapse mt-3" id="rejectCollapse">
+          <form action="/admin/listings/review/<%= listing._id %>/reject" method="POST" class="p-3 rounded bg-dark border border-danger border-opacity-50">
+            <label class="small text-danger fw-bold mb-2">Rejection Reason for User:</label>
+            <select name="rejectionReason" class="form-select bg-dark text-light border-secondary mb-2" required>
+              <option value="Label image does not clearly show brand and size.">Label image does not clearly show brand and size.</option>
+              <option value="Front/Back photos are blurry or unreadable.">Front/Back photos are blurry or unreadable.</option>
+              <option value="Product condition does not match user description.">Product condition does not match user description.</option>
+              <option value="Counterfeit or non-permitted garment item.">Counterfeit or non-permitted garment item.</option>
+              <option value="Information mismatch between user input and images.">Information mismatch between user input and images.</option>
+            </select>
+            <button type="submit" class="btn btn-danger w-100 fw-bold">Confirm Rejection</button>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.getElementById('finalValueINR')?.addEventListener('input', (e) => {
+      const val = parseInt(e.target.value) || 0;
+      document.getElementById('finalCredits').value = val;
+    });
+  </script>
+</body>
+</html>

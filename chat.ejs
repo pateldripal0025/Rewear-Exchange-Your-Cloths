@@ -1,0 +1,229 @@
+<% layout("/layouts/boilerplate") -%>
+
+<div class="container px-3 px-lg-4 py-4">
+
+    <!-- Back Navigation & Status Banner -->
+    <div class="d-flex align-items-center justify-content-between pb-3 mb-4 border-bottom border-secondary border-opacity-25">
+        <a href="/dashboard" class="text-secondary small text-decoration-none">
+            <i class="bi bi-arrow-left me-1"></i> Return to Dashboard
+        </a>
+        <div class="d-flex align-items-center gap-2">
+            <span class="small text-muted">Room ID:</span>
+            <code class="text-warning">#<%= exchange._id.toString().slice(-8) %></code>
+            <span id="socket-status-badge" class="badge bg-secondary ms-2" style="font-size: 0.7rem;">Connecting...</span>
+        </div>
+    </div>
+
+    <!-- Main Chat Workspace Layout -->
+    <div class="row g-4">
+        
+        <!-- Left Column: Item Overview & Decision Panel -->
+        <div class="col-lg-4">
+            <div class="rw-form-card p-4 h-100 d-flex flex-column">
+                
+                <!-- Listing Summary -->
+                <div class="pb-3 mb-3 border-bottom border-secondary border-opacity-25">
+                    <span class="eyebrow"><i class="bi bi-tag me-1"></i> Exchange Item</span>
+                    <h3 class="font-serif text-white h4 mb-2"><%= exchange.listing?.productName || 'Listing' %></h3>
+                    
+                    <div class="rounded overflow-hidden mb-3" style="aspect-ratio: 4/3;">
+                        <img src="<%= exchange.listing?.image?.url || '/images/placeholder.jpg' %>" class="w-100 h-100 object-fit-cover" alt="">
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="text-muted small">Brand & Size</span>
+                        <span class="fw-medium text-white small"><%= exchange.listing?.brand %> · <%= exchange.listing?.size %></span>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="text-muted small">Exchange Value</span>
+                        <span class="fw-bold text-warning"><i class="bi bi-coin"></i> <%= exchange.creditValue || exchange.listing?.price || 0 %> PTS</span>
+                    </div>
+                </div>
+
+                <!-- Decision Section -->
+                <div class="mt-auto pt-2">
+                    <span class="eyebrow"><i class="bi bi-ui-checks me-1"></i> Exchange Agreement</span>
+
+                    <!-- Overall Status Alert -->
+                    <% if(exchange.status === 'COMPLETED') { %>
+                        <div class="alert alert-success bg-success bg-opacity-10 border-success text-success p-3 rounded-3 mb-3">
+                            <div class="fw-bold"><i class="bi bi-check-circle-fill me-1"></i> Exchange Completed!</div>
+                            <div class="small">Credits transferred successfully between both users.</div>
+                        </div>
+                    <% } else if(exchange.status === 'CANCELLED' || exchange.status === 'USER_A_REJECTED' || exchange.status === 'USER_B_REJECTED') { %>
+                        <div class="alert alert-danger bg-danger bg-opacity-10 border-danger text-danger p-3 rounded-3 mb-3">
+                            <div class="fw-bold"><i class="bi bi-x-circle-fill me-1"></i> Exchange Cancelled</div>
+                            <div class="small">No credits were deducted. This exchange has terminated.</div>
+                        </div>
+                    <% } %>
+
+                    <!-- Decision Status Tracker -->
+                    <div class="bg-dark p-3 rounded border border-secondary border-opacity-25 mb-3">
+                        
+                        <div class="d-flex align-items-center justify-content-between pb-2 mb-2 border-bottom border-secondary border-opacity-25">
+                            <span class="small text-muted">Your Status:</span>
+                            <% if(myDecision === 'ACCEPTED') { %>
+                                <span class="badge bg-success"><i class="bi bi-check-lg"></i> ACCEPTED</span>
+                            <% } else if(myDecision === 'REJECTED') { %>
+                                <span class="badge bg-danger"><i class="bi bi-x-lg"></i> REJECTED</span>
+                            <% } else { %>
+                                <span class="badge bg-warning text-dark"><i class="bi bi-clock"></i> WAITING</span>
+                            <% } %>
+                        </div>
+
+                        <div class="d-flex align-items-center justify-content-between">
+                            <span class="small text-muted">@<%= otherUser.username %>'s Status:</span>
+                            <% if(otherDecision === 'ACCEPTED') { %>
+                                <span class="badge bg-success"><i class="bi bi-check-lg"></i> ACCEPTED</span>
+                            <% } else if(otherDecision === 'REJECTED') { %>
+                                <span class="badge bg-danger"><i class="bi bi-x-lg"></i> REJECTED</span>
+                            <% } else { %>
+                                <span class="badge bg-warning text-dark"><i class="bi bi-clock"></i> WAITING</span>
+                            <% } %>
+                        </div>
+
+                    </div>
+
+                    <!-- Interactive Decision Controls -->
+                    <% if(exchange.status === 'ADMIN_APPROVED' || exchange.status === 'USER_A_ACCEPTED' || exchange.status === 'USER_B_ACCEPTED') { %>
+                        <% if(myDecision === 'PENDING') { %>
+                            <div class="d-grid gap-2">
+                                <button type="button" class="rw-btn rw-btn-accent w-100" data-bs-toggle="modal" data-bs-target="#userAcceptModal">
+                                    <i class="bi bi-check-circle-fill me-1"></i> Accept Exchange
+                                </button>
+                                <button type="button" class="rw-btn rw-btn-danger w-100" data-bs-toggle="modal" data-bs-target="#userRejectModal">
+                                    <i class="bi bi-x-circle me-1"></i> Reject Exchange
+                                </button>
+                            </div>
+                        <% } else if(myDecision === 'ACCEPTED' && otherDecision !== 'ACCEPTED') { %>
+                            <div class="text-center p-2 rounded bg-warning bg-opacity-10 border border-warning border-opacity-25 text-warning small">
+                                <i class="bi bi-hourglass-split me-1"></i> You have accepted. Waiting for @<%= otherUser.username %> to accept.
+                            </div>
+                        <% } %>
+                    <% } %>
+
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Right Column: Live Chat Interface -->
+        <div class="col-lg-8">
+            <div class="rw-form-card p-0 overflow-hidden d-flex flex-column" style="height: 620px;">
+                
+                <!-- Chat Top Header -->
+                <div class="p-3 border-bottom border-secondary border-opacity-25 d-flex align-items-center justify-content-between" style="background: rgba(18, 20, 24, 0.95);">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="w-10 h-10 rounded-circle bg-warning bg-opacity-25 text-warning d-flex align-items-center justify-content-center fw-bold" style="width: 40px; height: 40px;">
+                            <%= otherUser.username.charAt(0).toUpperCase() %>
+                        </div>
+                        <div>
+                            <h4 class="font-serif text-white h5 mb-0">@<%= otherUser.username %></h4>
+                            <span class="small text-success"><i class="bi bi-circle-fill me-1" style="font-size: 0.5rem;"></i> Active Participant</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Messages Scrollable Body -->
+                <div id="chat-messages-container" class="p-4 flex-grow-1 overflow-y-auto d-flex flex-column gap-3" style="background: var(--rw-bg);">
+                    
+                    <% if(messages && messages.length > 0) { %>
+                        <% for(let msg of messages) { %>
+                            <% const isMine = (msg.sender?._id || msg.sender).toString() === currentUser._id.toString(); %>
+                            <div class="chat-msg-wrapper d-flex flex-column <%= isMine ? 'align-items-end' : 'align-items-start' %>" data-msg-id="<%= msg._id %>">
+                                <div class="small text-muted mb-1 px-1" style="font-size: 0.72rem;">
+                                    @<%= msg.sender?.username || 'User' %> · <%= new Date(msg.createdAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) %>
+                                </div>
+                                <div class="<%= isMine ? 'rw-chat-bubble-mine' : 'rw-chat-bubble-other' %>">
+                                    <%= msg.text %>
+                                </div>
+                            </div>
+                        <% } %>
+                    <% } else { %>
+                        <div id="empty-chat-state" class="text-center my-auto py-5 text-muted">
+                            <i class="bi bi-chat-heart fs-1 d-block mb-2 text-warning opacity-50"></i>
+                            <h5 class="font-serif text-white mb-1">Private Exchange Chat</h5>
+                            <p class="small mb-0">Communicate directly with @<%= otherUser.username %> to coordinate exchange details.</p>
+                        </div>
+                    <% } %>
+
+                </div>
+
+                <!-- Chat Input Form Footer -->
+                <div class="p-3 border-top border-secondary border-opacity-25" style="background: var(--rw-panel);">
+                    <form id="chat-form" class="d-flex gap-2">
+                        <input type="text" id="chat-input" class="rw-input flex-grow-1" placeholder="Type your message here..." autocomplete="off" <%= (exchange.status === 'COMPLETED' || exchange.status === 'CANCELLED') ? 'disabled' : '' %>>
+                        <button type="submit" class="rw-btn rw-btn-accent" <%= (exchange.status === 'COMPLETED' || exchange.status === 'CANCELLED') ? 'disabled' : '' %>>
+                            <span>Send</span>
+                            <i class="bi bi-send-fill ms-1"></i>
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- User Accept Confirmation Modal -->
+<div class="modal fade" id="userAcceptModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark border-secondary text-white">
+            <form action="/exchanges/<%= exchange._id %>/decision" method="POST">
+                <input type="hidden" name="decision" value="ACCEPT">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title font-serif text-warning"><i class="bi bi-check-circle me-2"></i> Accept Exchange Confirmation</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-secondary small mb-3">
+                        By accepting, you agree to exchange <strong><%= exchange.listing?.productName %></strong> for <strong><%= exchange.creditValue || exchange.listing?.price || 0 %> PTS</strong>.
+                    </p>
+                    <div class="p-3 bg-black rounded border border-secondary border-opacity-25 small text-warning mb-2">
+                        <i class="bi bi-info-circle me-1"></i> Credits will ONLY be deducted after BOTH you and @<%= otherUser.username %> accept.
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="rw-btn rw-btn-outline rw-btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="rw-btn rw-btn-accent rw-btn-sm">Confirm Accept</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- User Reject Confirmation Modal -->
+<div class="modal fade" id="userRejectModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content bg-dark border-secondary text-white">
+            <form action="/exchanges/<%= exchange._id %>/decision" method="POST">
+                <input type="hidden" name="decision" value="REJECT">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title font-serif text-danger"><i class="bi bi-x-circle me-2"></i> Reject Exchange</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-secondary small mb-0">
+                        Rejecting will immediately cancel this exchange request. No credits will be transferred and further action will be disabled.
+                    </p>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="rw-btn rw-btn-outline rw-btn-sm" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="rw-btn rw-btn-danger rw-btn-sm">Confirm Rejection</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Socket.IO Client Script Injection -->
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    const EXCHANGE_ID = "<%= exchange._id %>";
+    const CURRENT_USER_ID = "<%= currentUser._id %>";
+    const CURRENT_USERNAME = "<%= currentUser.username %>";
+</script>
+<script src="/js/chat.js"></script>

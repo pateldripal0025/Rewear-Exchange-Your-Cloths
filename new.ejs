@@ -1,0 +1,315 @@
+<% layout("/layouts/boilerplate") -%>
+
+<div class="container px-4 px-lg-5 py-5">
+    <div class="rw-form-card max-w-3xl mx-auto p-4 p-md-5">
+
+        <div class="border-bottom border-secondary border-opacity-25 pb-4 mb-4 text-center text-md-start">
+            <span class="eyebrow"><i class="bi bi-stars me-1 text-warning"></i> ReWear AI Studio</span>
+            <h1 class="display-title font-serif mb-2" style="font-size: 2.4rem;">List Your Clothes</h1>
+            <p class="text-secondary small mb-0">Fill in the item details and upload 3 compulsory verification photos. Our AI will evaluate your item and calculate its ReWear Credit value for Admin Approval.</p>
+        </div>
+
+        <form action="/listings" method="POST" enctype="multipart/form-data" id="create-listing-form">
+
+            <!-- SECTION 1: Compulsory Product Images -->
+            <div class="mb-5 p-4 rounded-4 border border-warning border-opacity-25" style="background: rgba(225, 169, 60, 0.03);">
+                <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+                    <h5 class="font-serif mb-0 d-flex align-items-center gap-2">
+                        <i class="bi bi-camera-fill text-warning"></i> Product Images <span class="badge bg-warning text-dark font-sans fs-6">3 Compulsory Photos</span>
+                    </h5>
+                    <span class="small text-muted"><i class="bi bi-shield-check text-success me-1"></i> AI Vision Verified</span>
+                </div>
+                <p class="small text-secondary mb-4">You must upload all 3 photos below. Clear photos ensure accurate AI valuation and quick Admin Approval.</p>
+
+                <div class="row g-4">
+                    <!-- Front Image -->
+                    <div class="col-md-4">
+                        <div class="card h-100 bg-dark text-white border border-secondary border-opacity-25 rounded-3 p-3 text-center position-relative shadow-sm">
+                            <label class="rw-label fw-bold mb-1 text-warning">✓ Front Image *</label>
+                            <p class="small text-muted mb-3" style="font-size: 0.75rem;">Complete front view of the clothing item.</p>
+                            
+                            <div class="image-upload-dropzone p-3 rounded-3 border border-dashed border-secondary mb-3 d-flex flex-column align-items-center justify-content-center cursor-pointer" id="dropzone-front" style="min-height: 140px; background: rgba(255,255,255,0.02);">
+                                <i class="bi bi-image fs-1 text-muted mb-2" id="icon-front"></i>
+                                <span class="small font-medium text-warning" id="text-front">Upload Front</span>
+                                <img id="preview-front" src="#" class="w-100 h-100 object-fit-cover rounded-3 d-none position-absolute inset-0">
+                            </div>
+                            <input type="file" name="frontImage" id="frontImage" accept="image/*" required class="d-none">
+                            <button type="button" class="btn btn-sm btn-outline-warning w-100" onclick="document.getElementById('frontImage').click()">Choose Front Photo</button>
+                        </div>
+                    </div>
+
+                    <!-- Back Image -->
+                    <div class="col-md-4">
+                        <div class="card h-100 bg-dark text-white border border-secondary border-opacity-25 rounded-3 p-3 text-center position-relative shadow-sm">
+                            <label class="rw-label fw-bold mb-1 text-warning">✓ Back Image *</label>
+                            <p class="small text-muted mb-3" style="font-size: 0.75rem;">Complete back view of the clothing item.</p>
+                            
+                            <div class="image-upload-dropzone p-3 rounded-3 border border-dashed border-secondary mb-3 d-flex flex-column align-items-center justify-content-center cursor-pointer" id="dropzone-back" style="min-height: 140px; background: rgba(255,255,255,0.02);">
+                                <i class="bi bi-image-fill fs-1 text-muted mb-2" id="icon-back"></i>
+                                <span class="small font-medium text-warning" id="text-back">Upload Back</span>
+                                <img id="preview-back" src="#" class="w-100 h-100 object-fit-cover rounded-3 d-none position-absolute inset-0">
+                            </div>
+                            <input type="file" name="backImage" id="backImage" accept="image/*" required class="d-none">
+                            <button type="button" class="btn btn-sm btn-outline-warning w-100" onclick="document.getElementById('backImage').click()">Choose Back Photo</button>
+                        </div>
+                    </div>
+
+                    <!-- Brand + Size Label Image -->
+                    <div class="col-md-4">
+                        <div class="card h-100 bg-dark text-white border border-secondary border-opacity-25 rounded-3 p-3 text-center position-relative shadow-sm">
+                            <label class="rw-label fw-bold mb-1 text-warning">✓ Brand + Size Label *</label>
+                            <p class="small text-muted mb-3" style="font-size: 0.75rem;">Close-up where brand & size are readable.</p>
+                            
+                            <div class="image-upload-dropzone p-3 rounded-3 border border-dashed border-secondary mb-3 d-flex flex-column align-items-center justify-content-center cursor-pointer" id="dropzone-label" style="min-height: 140px; background: rgba(255,255,255,0.02);">
+                                <i class="bi bi-tag-fill fs-1 text-muted mb-2" id="icon-label"></i>
+                                <span class="small font-medium text-warning" id="text-label">Upload Label</span>
+                                <img id="preview-label" src="#" class="w-100 h-100 object-fit-cover rounded-3 d-none position-absolute inset-0">
+                            </div>
+                            <input type="file" name="labelImage" id="labelImage" accept="image/*" required class="d-none">
+                            <button type="button" class="btn btn-sm btn-outline-warning w-100" onclick="document.getElementById('labelImage').click()">Choose Label Photo</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 2: Basic Information -->
+            <div class="mb-5">
+                <h5 class="font-serif mb-3 d-flex align-items-center gap-2">
+                    <i class="bi bi-info-circle text-warning"></i> Basic Information
+                </h5>
+                
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="rw-input-group">
+                            <label class="rw-label">Product Name <span class="text-danger">*</span></label>
+                            <input type="text" name="listing[productName]" id="productName" required placeholder="e.g. Vintage Leather Biker Jacket" class="rw-input">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="rw-input-group">
+                            <label class="rw-label">Brand <span class="text-danger">*</span></label>
+                            <input type="text" name="listing[brand]" id="brand" required placeholder="e.g. Levi's / Nike / Zara" class="rw-input">
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="rw-input-group">
+                            <label class="rw-label">Category</label>
+                            <select name="listing[category]" id="category" class="rw-select">
+                                <option value="">Select Category</option>
+                                <option value="T-Shirt">T-Shirt</option>
+                                <option value="Shirt">Shirt</option>
+                                <option value="Hoodie">Hoodie</option>
+                                <option value="Jacket">Jacket</option>
+                                <option value="Jeans">Jeans</option>
+                                <option value="Pants">Pants</option>
+                                <option value="Shorts">Shorts</option>
+                                <option value="Dress">Dress</option>
+                                <option value="Skirt">Skirt</option>
+                                <option value="Sweater">Sweater</option>
+                                <option value="Shoes">Shoes</option>
+                                <option value="Cap">Cap</option>
+                                <option value="Bag">Bag</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="rw-input-group">
+                            <label class="rw-label">Item Type <span class="text-danger">*</span></label>
+                            <input type="text" name="listing[itemType]" id="itemType" required placeholder="e.g. Jacket" class="rw-input">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="rw-input-group">
+                            <label class="rw-label">Gender <span class="text-danger">*</span></label>
+                            <select name="listing[gender]" id="gender" required class="rw-select">
+                                <option value="" disabled selected>Select Gender</option>
+                                <option value="Men">Men</option>
+                                <option value="Women">Women</option>
+                                <option value="Unisex">Unisex</option>
+                                <option value="Kids">Kids</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <div class="rw-input-group">
+                            <label class="rw-label">Description <span class="text-danger">*</span></label>
+                            <textarea name="listing[description]" id="description" required placeholder="Describe style, silhouette, fit, texture..." rows="3" class="rw-textarea"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 3: Garment Specs -->
+            <div class="mb-5 pt-4 border-top border-secondary border-opacity-25">
+                <h5 class="font-serif mb-3 d-flex align-items-center gap-2">
+                    <i class="bi bi-tags text-warning"></i> Sizing & Condition
+                </h5>
+
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="rw-input-group">
+                            <label class="rw-label">Size <span class="text-danger">*</span></label>
+                            <input type="text" name="listing[size]" id="size" required placeholder="e.g. M or L" class="rw-input">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="rw-input-group">
+                            <label class="rw-label">Color <span class="text-danger">*</span></label>
+                            <input type="text" name="listing[color]" id="color" required placeholder="e.g. Black" class="rw-input">
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="rw-input-group">
+                            <label class="rw-label">Material</label>
+                            <input type="text" name="listing[material]" id="material" placeholder="e.g. 100% Cotton" class="rw-input">
+                        </div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <div class="rw-input-group">
+                            <label class="rw-label">Condition <span class="text-danger">*</span></label>
+                            <select name="listing[condition]" id="condition" required class="rw-select">
+                                <option value="" disabled selected>Select Condition</option>
+                                <option value="New with Tags">New with Tags</option>
+                                <option value="Like New">Like New</option>
+                                <option value="Excellent">Excellent</option>
+                                <option value="Good">Good</option>
+                                <option value="Fair">Fair</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="rw-input-group">
+                            <label class="rw-label">Age of Product <span class="text-danger">*</span></label>
+                            <select name="listing[productAge]" id="productAge" required class="rw-select">
+                                <option value="" disabled selected>Select Product Age</option>
+                                <option value="Less than 6 months">Less than 6 months</option>
+                                <option value="6–12 months">6–12 months</option>
+                                <option value="1–2 years">1–2 years</option>
+                                <option value="More than 2 years">More than 2 years</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 4: Exchange Terms -->
+            <div class="mb-5 pt-4 border-top border-secondary border-opacity-25">
+                <h5 class="font-serif mb-3 d-flex align-items-center gap-2">
+                    <i class="bi bi-arrow-left-right text-warning"></i> Exchange Preferences
+                </h5>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="rw-input-group">
+                            <label class="rw-label">Direct Exchange Available? <span class="text-danger">*</span></label>
+                            <select name="listing[exchangeAvailable]" id="exchangeAvailable" required class="rw-select">
+                                <option value="true" selected>Yes</option>
+                                <option value="false">No (Credit Redemption Only)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="rw-input-group">
+                            <label class="rw-label">Preferred Exchange Items</label>
+                            <input type="text" name="listing[preferredItems]" id="preferredItems" placeholder="e.g. Hoodies, Denim jackets" class="rw-input">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 5: Notes & Defects -->
+            <div class="mb-4 pt-4 border-top border-secondary border-opacity-25">
+                <h5 class="font-serif mb-3 d-flex align-items-center gap-2">
+                    <i class="bi bi-journal-text text-warning"></i> Transparency Notes
+                </h5>
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="rw-input-group">
+                            <label class="rw-label">Defects or Wear Details</label>
+                            <input type="text" name="listing[defects]" id="defects" placeholder="e.g. Minor scuff on left cuff" class="rw-input">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="rw-input-group">
+                            <label class="rw-label">Additional Seller Notes</label>
+                            <input type="text" name="listing[additionalNotes]" id="additionalNotes" placeholder="e.g. Fits slightly oversized" class="rw-input">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SUBMIT BUTTON -->
+            <div class="pt-3 border-top border-secondary border-opacity-25 text-center">
+                <button type="submit" id="submit-btn" class="rw-btn rw-btn-accent rw-btn-lg w-100 py-3 d-flex align-items-center justify-content-center gap-2">
+                    <i class="bi bi-cpu-fill fs-5"></i> Submit for AI Analysis & Valuation
+                </button>
+                <div class="small text-muted mt-2">
+                    <i class="bi bi-lock me-1"></i> Your listing will undergo AI vision valuation and Admin Review before publishing.
+                </div>
+            </div>
+
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        function setupPreview(inputId, previewId, iconId, textId) {
+            const input = document.getElementById(inputId);
+            const preview = document.getElementById(previewId);
+            const icon = document.getElementById(iconId);
+            const text = document.getElementById(textId);
+
+            input.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        preview.src = ev.target.result;
+                        preview.classList.remove('d-none');
+                        if (icon) icon.classList.add('d-none');
+                        if (text) text.textContent = "Change Image";
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        setupPreview('frontImage', 'preview-front', 'icon-front', 'text-front');
+        setupPreview('backImage', 'preview-back', 'icon-back', 'text-back');
+        setupPreview('labelImage', 'preview-label', 'icon-label', 'text-label');
+
+        const form = document.getElementById('create-listing-form');
+        const submitBtn = document.getElementById('submit-btn');
+
+        form.addEventListener('submit', (e) => {
+            const frontFile = document.getElementById('frontImage').files[0];
+            const backFile = document.getElementById('backImage').files[0];
+            const labelFile = document.getElementById('labelImage').files[0];
+            const itemType = document.getElementById('itemType').value.trim().toLowerCase();
+            const sizeInput = document.getElementById('size');
+            let sizeVal = sizeInput.value.trim();
+
+            if (!frontFile || !backFile || !labelFile) {
+                alert("Please upload all 3 compulsory images: Front, Back, and Label Image.");
+                e.preventDefault();
+                return;
+            }
+
+            // Auto-format size if standard text
+            if (itemType !== 'shoes') {
+                sizeInput.value = sizeVal.toUpperCase();
+            }
+
+            // Show spinner UI without breaking submit event
+            submitBtn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span> Analyzing Images with AI Vision...`;
+            setTimeout(() => {
+                submitBtn.disabled = true;
+            }, 50);
+        });
+    });
+</script>

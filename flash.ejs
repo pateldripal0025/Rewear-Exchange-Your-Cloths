@@ -1,0 +1,29 @@
+<div class="rw-toast-container">
+  <% if(success && success.length) { %>
+    <div class="rw-toast rw-toast-success alert-dismissible fade show" role="alert">
+      <i class="bi bi-check-circle-fill text-success fs-5"></i>
+      <div class="flex-grow-1"><%= success %></div>
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  <% } %>
+
+  <% if(error && error.length) { %>
+    <div class="rw-toast rw-toast-error alert-dismissible fade show" role="alert">
+      <i class="bi bi-exclamation-octagon-fill text-danger fs-5"></i>
+      <div class="flex-grow-1"><%= error %></div>
+      <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+  <% } %>
+</div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    setTimeout(function() {
+      let alerts = document.querySelectorAll('.rw-toast');
+      alerts.forEach(alert => {
+        let bsAlert = new bootstrap.Alert(alert);
+        bsAlert.close();
+      });
+    }, 5000);
+  });
+</script>

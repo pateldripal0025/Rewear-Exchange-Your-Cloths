@@ -1,0 +1,90 @@
+<% layout("/layouts/boilerplate") -%>
+
+<div class="container px-4 px-lg-5 py-5">
+
+    <!-- PAGE HEADER -->
+    <div class="d-flex flex-column flex-md-row align-items-md-end justify-content-between pb-4 mb-5 border-bottom border-secondary border-opacity-25">
+        <div>
+            <span class="eyebrow"><i class="bi bi-collection me-1"></i> The Collection</span>
+            <% if (searchQuery) { %>
+                <h1 class="section-title font-serif mb-2">Search: "<%= searchQuery %>"</h1>
+                <p class="text-secondary mb-0">Showing matching pre-loved items in the ReWear archive.</p>
+            <% } else { %>
+                <h1 class="section-title font-serif mb-2">Curated Fashion Archive</h1>
+                <p class="text-secondary mb-0">Explore authenticated garments available for credit exchange.</p>
+            <% } %>
+        </div>
+
+        <% if (searchQuery) { %>
+            <a href="/listings" class="rw-btn rw-btn-outline rw-btn-sm mt-3 mt-md-0">
+                <i class="bi bi-x-circle me-1"></i> Clear Search
+            </a>
+        <% } %>
+    </div>
+
+    <!-- FILTER & CATEGORY QUICK BAR -->
+    <div class="d-flex align-items-center gap-2 overflow-x-auto pb-3 mb-5 scrollbar-none">
+        <a href="/listings" class="rw-btn <%= !searchQuery ? 'rw-btn-accent' : 'rw-btn-outline' %> rw-btn-sm text-nowrap">All Items</a>
+        <a href="/listings?q=Jacket" class="rw-btn <%= searchQuery === 'Jacket' ? 'rw-btn-accent' : 'rw-btn-outline' %> rw-btn-sm text-nowrap">Jackets & Outerwear</a>
+        <a href="/listings?q=Shirt" class="rw-btn <%= searchQuery === 'Shirt' ? 'rw-btn-accent' : 'rw-btn-outline' %> rw-btn-sm text-nowrap">Shirts & Tops</a>
+        <a href="/listings?q=Jeans" class="rw-btn <%= searchQuery === 'Jeans' ? 'rw-btn-accent' : 'rw-btn-outline' %> rw-btn-sm text-nowrap">Denim & Pants</a>
+        <a href="/listings?q=Shoes" class="rw-btn <%= searchQuery === 'Shoes' ? 'rw-btn-accent' : 'rw-btn-outline' %> rw-btn-sm text-nowrap">Footwear</a>
+        <a href="/listings?q=Hoodie" class="rw-btn <%= searchQuery === 'Hoodie' ? 'rw-btn-accent' : 'rw-btn-outline' %> rw-btn-sm text-nowrap">Hoodies & Sweaters</a>
+    </div>
+
+    <!-- MAIN PRODUCT GRID -->
+    <% if(allListings && allListings.length === 0) { %>
+        <div class="rw-form-card text-center py-5 my-5 max-w-xl mx-auto">
+            <div class="w-16 h-16 rounded-circle mx-auto d-flex align-items-center justify-content-center mb-4" style="width: 64px; height: 64px; background: var(--rw-accent-light); color: var(--rw-accent); font-size: 1.8rem;">
+                <i class="bi bi-search"></i>
+            </div>
+            <h3 class="font-serif mb-2">No Matching Pieces Found</h3>
+            <p class="text-secondary small mb-4">We couldn't find any clothing items matching your search criteria.</p>
+            <div class="d-flex justify-content-center gap-3">
+                <a href="/listings" class="rw-btn rw-btn-primary rw-btn-sm">Reset Search</a>
+                <a href="/listings/new" class="rw-btn rw-btn-accent rw-btn-sm">List New Item</a>
+            </div>
+        </div>
+    <% } else { %>
+        <div class="row g-4 g-lg-5">
+            <% for(let listing of allListings){ %>
+                <div class="col-lg-3 col-md-4 col-sm-6">
+                    <div class="rw-card">
+                        <!-- Image & Badges -->
+                        <div class="rw-card-media">
+                            <img src="<%= listing.image?.url || (listing.images && listing.images[0]?.url) || '/images/placeholder.jpg' %>" class="rw-card-img" alt="<%= listing.productName || 'Product Image' %>">
+                            <div class="rw-card-overlay"></div>
+
+                            <span class="position-absolute top-0 start-0 m-3 rw-badge rw-badge-dark">
+                                <%= listing.condition || 'Pre-Loved' %>
+                            </span>
+
+                            <!-- Wishlist Action Toggle -->
+                            <% if(currentUser && listing.owner && !currentUser._id.equals(listing.owner._id || listing.owner)) { %>
+                                <form action="/listings/<%= listing._id %>/wishlist" method="POST">
+                                    <button type="submit" class="rw-wishlist-btn" title="Toggle Wishlist">
+                                        <i class="bi <%= (currentUser.wishlist && currentUser.wishlist.includes(listing._id)) ? 'bi-heart-fill text-danger' : 'bi-heart' %>"></i>
+                                    </button>
+                                </form>
+                            <% } %>
+                        </div>
+
+                        <!-- Card Content -->
+                        <div class="rw-card-body">
+                            <div class="rw-card-brand"><%= listing.brand %></div>
+                            <h3 class="rw-card-title">
+                                <a href="/listings/<%= listing._id %>"><%= listing.productName %></a>
+                            </h3>
+                            
+                            <div class="rw-card-meta">
+                                <span class="rw-badge rw-badge-sage">Size: <%= listing.size %></span>
+                                <span class="rw-card-price"><i class="bi bi-coin"></i> <%= listing.price %> PTS</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <% } %>
+        </div>
+    <% } %>
+
+</div>
