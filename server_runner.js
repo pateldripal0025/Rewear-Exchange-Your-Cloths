@@ -21,25 +21,28 @@ function isPortOpen(port, host = '127.0.0.1') {
 }
 
 async function start() {
-    let mongoUri = "mongodb://127.0.0.1:27017/Rewear";
-    const portOpen = await isPortOpen(27017);
-
-    if (portOpen) {
-        console.log("Found active MongoDB on 127.0.0.1:27017");
+    let mongoUri;
+    
+    if (process.env.MONGODB_URI) {
+        mongoUri = process.env.MONGODB_URI;
+        console.log("Using environment MONGODB_URI database connection.");
     } else {
-        console.log("Local MongoDB not detected on 27017. Starting MongoMemoryServer (MongoDB 6.0)...");
-        const { MongoMemoryServer } = require('mongodb-memory-server');
-        const mongod = await MongoMemoryServer.create({
-            binary: {
-                version: '6.0.14'
-            },
-            instance: {
-                port: 27017,
-                dbName: "Rewear"
-            }
-        });
-        mongoUri = "mongodb://127.0.0.1:27017/Rewear";
-        console.log("MongoMemoryServer started successfully at:", mongoUri);
+        const portOpen = await isPortOpen(27017);
+        if (portOpen) {
+            console.log("Found active MongoDB on 127.0.0.1:27017");
+            mongoUri = "mongodb://127.0.0.1:27017/Rewear";
+        } else {
+            console.log("Local MongoDB not detected on 27017. Starting MongoMemoryServer...");
+            const { MongoMemoryServer } = require('mongodb-memory-server');
+            const mongod = await MongoMemoryServer.create({
+                instance: {
+                    port: 27017,
+                    dbName: "Rewear"
+                }
+            });
+            mongoUri = "mongodb://127.0.0.1:27017/Rewear";
+            console.log("MongoMemoryServer started successfully at:", mongoUri);
+        }
     }
 
     process.env.MONGODB_URI = mongoUri;
