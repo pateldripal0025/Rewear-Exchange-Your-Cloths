@@ -1,9 +1,9 @@
 {
   "name": "rewear",
   "version": "1.0.0",
-  "main": "server_runner.js",
+  "main": "index.js",
   "scripts": {
-    "start": "node server_runner.js",
+    "start": "node index.js",
     "dev": "nodemon server_runner.js"
   },
   "dependencies": {
